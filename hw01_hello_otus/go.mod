@@ -1,4 +1,4 @@
-module github.com/otus-golang/hw01_hello_otus
+module github.com/breadrock1/otus-golang/hw01_hello_otus
 
 go 1.20
 
