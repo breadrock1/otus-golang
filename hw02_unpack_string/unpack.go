@@ -16,7 +16,8 @@ func Unpack(inputString string) (string, error) {
 	}
 
 	runeArray := []rune(inputString)
-	var prevSymbol = runeArray[0]
+	prevSymbol := runeArray[0]
+
 	// Check first symbol of input sentence -> mustn't be a digit.
 	if unicode.IsDigit(prevSymbol) {
 		return "", ErrInvalidString
@@ -24,25 +25,20 @@ func Unpack(inputString string) (string, error) {
 
 	var deserializedString strings.Builder
 	for _, currSymbol := range runeArray[1:] {
-
 		if unicode.IsDigit(currSymbol) {
 			// Catches case when near symbols are digits => bigger then 9.
 			if unicode.IsDigit(prevSymbol) {
 				return "", ErrInvalidString
 			}
-
 			if unicode.IsLetter(prevSymbol) {
 				str := string(currSymbol)
 				number, _ := strconv.Atoi(str)
 				str = strings.Repeat(string(prevSymbol), number)
 				deserializedString.WriteString(str)
 			}
-
-		} else {
-			if unicode.IsLetter(prevSymbol) {
-				str := string(prevSymbol)
-				deserializedString.WriteString(str)
-			}
+		} else if unicode.IsLetter(prevSymbol) {
+			str := string(prevSymbol)
+			deserializedString.WriteString(str)
 		}
 
 		prevSymbol = currSymbol
