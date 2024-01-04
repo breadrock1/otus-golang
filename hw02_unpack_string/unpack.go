@@ -55,7 +55,7 @@ func Unpack(inputString string) (string, error) {
 }
 
 func revertDeserializedData(sliceData []string) string {
-	var reversedSlice []string
+	reversedSlice := make([]string, len(sliceData))
 	for offset := len(sliceData) - 1; offset >= 0; offset-- {
 		currSymbol := sliceData[offset]
 		newOffset := len(sliceData) - 1 - offset
