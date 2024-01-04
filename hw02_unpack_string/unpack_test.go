@@ -29,6 +29,11 @@ func TestUnpack(t *testing.T) {
 		{input: "a b1", expected: "ab"},
 		{input: " 3", expected: ""},
 		{input: "a3  ", expected: "aaa"},
+
+		{input: "🙂9", expected: "🙂🙂🙂🙂🙂🙂🙂🙂🙂"},
+		{input: "১২৩", expected: "১২৩"},
+		{input: "১2২৩0", expected: "১১২"},
+		{input: "੩4", expected: "੩੩੩੩"},
 	}
 
 	for _, tc := range tests {
