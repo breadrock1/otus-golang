@@ -20,6 +20,9 @@ func Unpack(inputString string) (string, error) {
 	for offset := len(runeArray) - 1; offset >= 0; offset-- {
 		rCurrSymbol := runeArray[offset]
 		if offset == 0 {
+			if unicode.IsDigit(rCurrSymbol) && isArabicDigit(rCurrSymbol) {
+				return "", ErrInvalidString
+			}
 			deserializedSlice = append(deserializedSlice, string(rCurrSymbol))
 			continue
 		}
