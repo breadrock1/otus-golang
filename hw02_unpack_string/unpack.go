@@ -43,17 +43,6 @@ func Unpack(inputString string) (string, error) {
 			repeated := extractSymbolData(rPrevSymbol, rCurrSymbol)
 			deserializedSlice = append(deserializedSlice, repeated)
 
-			//if unicode.IsDigit(rPrevSymbol) {
-			//	if isArabicDigit(rPrevSymbol) {
-			//		return "", ErrInvalidString
-			//	}
-			//	repeated := extractSymbolData(rPrevSymbol, rCurrSymbol)
-			//	deserializedSlice = append(deserializedSlice, repeated)
-			//} else if unicode.IsSymbol(rPrevSymbol) || unicode.IsLetter(rPrevSymbol) {
-			//	repeated := extractSymbolData(rPrevSymbol, rCurrSymbol)
-			//	deserializedSlice = append(deserializedSlice, repeated)
-			//}
-
 			offset--
 		}
 	}
