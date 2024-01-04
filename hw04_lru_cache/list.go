@@ -37,7 +37,7 @@ func (l *list) Back() *ListItem {
 // PushFront new element to begin of linked list.
 // ItemName and fields: front, back
 // new      | a,            b,      c,
-// *a, nil  | *b, nil/*new  *c, *a  nil, *b
+// *a, nil  | *b, nil/*new  *c, *a  nil, *b.
 func (l *list) PushFront(v interface{}) *ListItem {
 	newItem := &ListItem{Value: v}
 
@@ -56,7 +56,7 @@ func (l *list) PushFront(v interface{}) *ListItem {
 // PushBack new element to end of linked list.
 // ItemName and fields: front, back
 // a,       b,      c,            | new
-// *b, nil  *c, *a  nil/*new, *b  | nil, *c
+// *b, nil  *c, *a  nil/*new, *b  | nil, *c.
 func (l *list) PushBack(v interface{}) *ListItem {
 	newItem := &ListItem{Value: v}
 
@@ -75,7 +75,7 @@ func (l *list) PushBack(v interface{}) *ListItem {
 // Remove element from linked list
 // ItemName and fields: front, back
 // a,       b,         | c,      | d
-// *b, nil  *c/*d, *a  | *d, *b  | nil, *c/*b
+// *b, nil  *c/*d, *a  | *d, *b  | nil, *c/*b.
 func (l *list) Remove(i *ListItem) {
 	if i.Prev == nil {
 		l.front = i.Next
