@@ -45,7 +45,7 @@ func execTaskInWorker(wg *sync.WaitGroup, taskCh <-chan Task, resultCh chan<- er
 }
 
 func isErrorsLimitExceeded(tasks []Task, taskCh chan<- Task, resultCh <-chan error, m int) bool {
-	var countErrors = 0
+	countErrors := 0
 	for i := 0; i < len(tasks); {
 		task := tasks[i]
 
