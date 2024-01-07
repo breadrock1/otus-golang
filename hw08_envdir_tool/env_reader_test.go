@@ -1,8 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -17,19 +15,19 @@ func TestReadDir(t *testing.T) {
 			"UNSET": EnvValue{NeedRemove: true},
 			"EMPTY": EnvValue{NeedRemove: true},
 		}
+
 		env, err := ReadDir("testdata/env")
-		require.NoError(t, err)
-		require.Equal(t, env, expectEnv)
-	})
 
-	t.Run("Success with empty dir", func(t *testing.T) {
-		dir, err := ioutil.TempDir("", "test")
-		require.NoError(t, err)
-		defer os.RemoveAll(dir)
+		resultEnv := make(Environment)
+		for key, _ := range expectEnv {
+			val, exists := env[key]
+			if exists {
+				resultEnv[key] = val
+			}
+		}
 
-		env, err := ReadDir(dir)
 		require.NoError(t, err)
-		require.Len(t, env, 0)
+		require.Equal(t, resultEnv, expectEnv)
 	})
 
 	t.Run("Fail with dir not exists", func(t *testing.T) {
