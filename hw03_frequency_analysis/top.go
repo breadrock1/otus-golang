@@ -42,7 +42,7 @@ func computeWordsFrequency(inputText *string) *map[string]int {
 }
 
 func splitToWords(inputText *string) []string {
-	reSlice := regexp.MustCompile(`\\s+`)
+	reSlice := regexp.MustCompile(`\s+`)
 	sentenceWords := reSlice.Split(*inputText, -1)
 	return sentenceWords
 }
