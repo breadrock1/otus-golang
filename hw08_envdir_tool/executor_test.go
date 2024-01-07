@@ -15,7 +15,8 @@ func TestRunCmd(t *testing.T) {
 		_ = os.Setenv("ADDED", "from original env")
 		env, _ := ReadDir("./testdata/env")
 		command := []string{"/bin/bash", "./testdata/echo.sh", "arg1=1", "arg2=2"}
-		cmp := "HELLO is (\"hello\")\nBAR is (bar)\nFOO is (   foo\nwith new line)\nUNSET is ()\nADDED is (from original env)\nEMPTY is ()\narguments are arg1=1 arg2=2\n"
+		cmp := "HELLO is (\"hello\")\nBAR is (bar)\nFOO is (   foo\nwith new line)\n"
+		cmp += "UNSET is ()\nADDED is (from original env)\nEMPTY is ()\narguments are arg1=1 arg2=2\n"
 
 		var returnCode int
 		result := capturer.CaptureStdout(func() {

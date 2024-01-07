@@ -19,7 +19,7 @@ func TestReadDir(t *testing.T) {
 		env, err := ReadDir("testdata/env")
 
 		resultEnv := make(Environment)
-		for key, _ := range expectEnv {
+		for key := range expectEnv {
 			val, exists := env[key]
 			if exists {
 				resultEnv[key] = val

@@ -53,14 +53,17 @@ func ReadDir(dir string) (Environment, error) {
 
 func readFileValue(filePath string) (string, error) {
 	handle, err := os.Open(filePath)
-	defer handle.Close()
+	defer func() {
+		_ = handle.Close()
+	}()
+
 	if err != nil {
 		return "", err
 	}
 
 	fileData, err := io.ReadAll(handle)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	strFileData := string(fileData)
