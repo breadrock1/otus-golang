@@ -25,7 +25,7 @@ func Top10(inputText string) []string {
 }
 
 func computeWordsFrequency(inputText *string) *map[string]int {
-	var topWordsMap = make(map[string]int)
+	topWordsMap := make(map[string]int)
 	for _, word := range splitToWords(inputText) {
 		if strings.EqualFold("", word) {
 			continue
@@ -42,13 +42,13 @@ func computeWordsFrequency(inputText *string) *map[string]int {
 }
 
 func splitToWords(inputText *string) []string {
-	var reSlice = regexp.MustCompile("\\s+")
+	reSlice := regexp.MustCompile(`\\s+`)
 	sentenceWords := reSlice.Split(*inputText, -1)
 	return sentenceWords
 }
 
 func extractUniqWords(wordsFreq *map[string]int) []UniqWord {
-	var uniqueWords = make([]UniqWord, 0, len(*wordsFreq))
+	uniqueWords := make([]UniqWord, 0, len(*wordsFreq))
 	for key, value := range *wordsFreq {
 		currWord := UniqWord{key, value}
 		uniqueWords = append(uniqueWords, currWord)
@@ -65,7 +65,7 @@ func extractTopArray(uniqWords []UniqWord) []string {
 		if len(topWords) >= 10 {
 			break
 		}
-		words, _ := groupedByFreq[freqValue]
+		words := groupedByFreq[freqValue]
 		topWords = append(topWords, words...)
 	}
 
@@ -73,7 +73,7 @@ func extractTopArray(uniqWords []UniqWord) []string {
 }
 
 func groupByValue(uniqWords []UniqWord) map[int][]string {
-	var groupedWords = make(map[int][]string)
+	groupedWords := make(map[int][]string)
 	for _, uWord := range uniqWords {
 		_, isKeyAlreadyExists := groupedWords[uWord.Value]
 		if isKeyAlreadyExists {
@@ -81,7 +81,6 @@ func groupByValue(uniqWords []UniqWord) map[int][]string {
 		} else {
 			groupedWords[uWord.Value] = []string{uWord.Key}
 		}
-
 	}
 
 	for _, group := range groupedWords {
