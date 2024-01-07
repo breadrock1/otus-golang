@@ -11,6 +11,19 @@ import (
 )
 
 func TestRunCmd(t *testing.T) {
+	t.Run("test.sh", func(t *testing.T) {
+		env, _ := ReadDir("./testdata/env")
+		command := []string{"/bin/bash", "./testdata/echo.sh", "arg1=1", "arg2=2"}
+		cmp := "HELLO is (${HELLO})\nBAR is (${BAR})\nFOO is (${FOO})\nUNSET is (${UNSET})\nADDED is (${ADDED})\nEMPTY is (${EMPTY})\narguments are $*\""
+
+		var returnCode int
+		result := capturer.CaptureStdout(func() {
+			returnCode = RunCmd(command, env)
+		})
+		require.Equal(t, 0, returnCode)
+		require.Equal(t, cmp, result)
+	})
+
 	t.Run("Success", func(t *testing.T) {
 		// подготовка тестовых данных
 		dir, err := ioutil.TempDir("", "test")
