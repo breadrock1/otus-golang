@@ -25,7 +25,6 @@ func ReadDir(dir string) (Environment, error) {
 	}
 
 	sysEnvs := loadSysEnvs()
-	currEnvs := make(Environment)
 	for _, entry := range dirEntries {
 		entryName := entry.Name()
 		_, exists := sysEnvs[entryName]
@@ -38,18 +37,18 @@ func ReadDir(dir string) (Environment, error) {
 		var entryVar EnvValue
 		if err != nil {
 			entryVar = EnvValue{Value: fileData, NeedRemove: true}
-			currEnvs[entryName] = entryVar
+			sysEnvs[entryName] = entryVar
 		} else {
 			fileData = strings.ReplaceAll(fileData, "\x00", "\n")
 			entryVar = EnvValue{Value: fileData, NeedRemove: false}
 			if len(fileData) < 1 {
 				entryVar.NeedRemove = true
 			}
-			currEnvs[entryName] = entryVar
+			sysEnvs[entryName] = entryVar
 		}
 	}
 
-	return currEnvs, nil
+	return sysEnvs, nil
 }
 
 func readFileValue(filePath string) (string, error) {
@@ -80,7 +79,7 @@ func loadSysEnvs() Environment {
 	for _, env := range os.Environ() {
 		envArr := strings.Split(env, "=")
 		value := strings.Join(envArr[1:], "=")
-		envValue := EnvValue{Value: value, NeedRemove: true}
+		envValue := EnvValue{Value: value, NeedRemove: false}
 		sysEnvs[envArr[0]] = envValue
 	}
 	return sysEnvs
