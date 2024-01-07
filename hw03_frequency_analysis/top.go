@@ -1,13 +1,12 @@
 package hw03frequencyanalysis
 
 import (
-	"fmt"
 	"regexp"
 	"sort"
 	"strings"
 )
 
-const MAX_TOP_SIZE = 10
+const MaxTopSize = 10
 
 type UniqWord struct {
 	Key   string
@@ -17,10 +16,11 @@ type UniqWord struct {
 func Top10(inputText string) []string {
 	wordsFreq := computeWordsFrequency(&inputText)
 	uniqWords := extractUniqWords(wordsFreq)
-	if len(uniqWords) < 1 {
-		return []string{}
+	topWords := make([]string, 0)
+	if len(uniqWords) > 0 {
+		topWords = extractTopArray(uniqWords)
 	}
-	topWords := extractTopArray(uniqWords)
+
 	return topWords
 }
 
@@ -37,28 +37,39 @@ func computeWordsFrequency(inputText *string) *map[string]int {
 		} else {
 			topWordsMap[word] = 1
 		}
-		fmt.Println("")
 	}
 	return &topWordsMap
 }
 
 func splitToWords(inputText *string) []string {
-	var reSlice = regexp.MustCompile("[\\s!?.,:;`'\"(){}\\[\\]]+")
+	var reSlice = regexp.MustCompile("\\s+")
 	sentenceWords := reSlice.Split(*inputText, -1)
-	sort.Strings(sentenceWords)
 	return sentenceWords
 }
 
-func extractTopArray(uniqWords []UniqWord) []string {
-	sortWordsByFreq(uniqWords)
-	test := groupByValue(uniqWords)
-	fmt.Println(test)
-	topWords := make([]string, 0, MAX_TOP_SIZE)
-	for _, uWord := range uniqWords[:MAX_TOP_SIZE] {
-		//fmt.Printf("%s ->  %d\n", uWord.Key, uWord.Value)
-		topWords = append(topWords, uWord.Key)
+func extractUniqWords(wordsFreq *map[string]int) []UniqWord {
+	var uniqueWords = make([]UniqWord, 0, len(*wordsFreq))
+	for key, value := range *wordsFreq {
+		currWord := UniqWord{key, value}
+		uniqueWords = append(uniqueWords, currWord)
 	}
-	return topWords
+	return uniqueWords
+}
+
+func extractTopArray(uniqWords []UniqWord) []string {
+	topWords := make([]string, 0, MaxTopSize)
+
+	groupedByFreq := groupByValue(uniqWords)
+	groupKeys := getSortedKeys(groupedByFreq)
+	for _, freqValue := range groupKeys {
+		if len(topWords) >= 10 {
+			break
+		}
+		words, _ := groupedByFreq[freqValue]
+		topWords = append(topWords, words...)
+	}
+
+	return topWords[:MaxTopSize]
 }
 
 func groupByValue(uniqWords []UniqWord) map[int][]string {
@@ -80,17 +91,15 @@ func groupByValue(uniqWords []UniqWord) map[int][]string {
 	return groupedWords
 }
 
-func sortWordsByFreq(uniqWords []UniqWord) {
-	sort.Slice(uniqWords, func(srcCmp, dstCmp int) bool {
-		return uniqWords[srcCmp].Value > uniqWords[dstCmp].Value
-	})
-}
-
-func extractUniqWords(wordsFreq *map[string]int) []UniqWord {
-	var uniqWords = make([]UniqWord, 0, len(*wordsFreq))
-	for key, value := range *wordsFreq {
-		currWord := UniqWord{key, value}
-		uniqWords = append(uniqWords, currWord)
+func getSortedKeys(groupedWords map[int][]string) []int {
+	keys := make([]int, 0)
+	for key := range groupedWords {
+		keys = append(keys, key)
 	}
-	return uniqWords
+
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] > keys[j]
+	})
+
+	return keys
 }
