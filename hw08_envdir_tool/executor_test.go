@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -28,17 +27,18 @@ func TestRunCmd(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		// подготовка тестовых данных
-		dir, err := ioutil.TempDir("", "test")
-		require.NoError(t, err)
-		defer os.RemoveAll(dir)
+		dir := os.TempDir()
+		defer func() {
+			_ = os.RemoveAll(dir)
+		}()
 
 		// папка с переменными окружения
-		err = os.Mkdir(filepath.Join(dir, "vars"), 0o777)
+		err := os.Mkdir(filepath.Join(dir, "vars"), 0o777)
 		require.NoError(t, err)
-		err = ioutil.WriteFile(filepath.Join(dir, "vars", "BAR"), []byte("bar"), 0o666)
+		err = os.WriteFile(filepath.Join(dir, "vars", "BAR"), []byte("bar"), 0o666)
 		require.NoError(t, err)
 		// баш-скрипт (распечатывает свой первый аргумент и переменную окружения BAR)
-		err = ioutil.WriteFile(filepath.Join(dir, "t.sh"), []byte("#!/usr/bin/env bash\necho $1\necho $BAR\n"), 0o666)
+		err = os.WriteFile(filepath.Join(dir, "t.sh"), []byte("#!/usr/bin/env bash\necho $1\necho $BAR\n"), 0o666)
 		require.NoError(t, err)
 		err = os.Chmod(filepath.Join(dir, "t.sh"), 0o777)
 		require.NoError(t, err)
@@ -57,17 +57,18 @@ func TestRunCmd(t *testing.T) {
 
 	t.Run("Rewrite HOME", func(t *testing.T) {
 		// подготовка тестовых данных
-		dir, err := ioutil.TempDir("", "test")
-		require.NoError(t, err)
-		defer os.RemoveAll(dir)
+		dir := os.TempDir()
+		defer func() {
+			_ = os.RemoveAll(dir)
+		}()
 
 		// папка с переменными окружения
-		err = os.Mkdir(filepath.Join(dir, "vars"), 0o777)
+		err := os.Mkdir(filepath.Join(dir, "vars"), 0o777)
 		require.NoError(t, err)
-		err = ioutil.WriteFile(filepath.Join(dir, "vars", "HOME"), []byte("42"), 0o666)
+		err = os.WriteFile(filepath.Join(dir, "vars", "HOME"), []byte("42"), 0o666)
 		require.NoError(t, err)
 		// баш-скрипт (распечатывает переменную окружения HOME)
-		err = ioutil.WriteFile(filepath.Join(dir, "t.sh"), []byte("#!/usr/bin/env bash\necho $HOME\n"), 0o666)
+		err = os.WriteFile(filepath.Join(dir, "t.sh"), []byte("#!/usr/bin/env bash\necho $HOME\n"), 0o666)
 		require.NoError(t, err)
 		err = os.Chmod(filepath.Join(dir, "t.sh"), 0o777)
 		require.NoError(t, err)
