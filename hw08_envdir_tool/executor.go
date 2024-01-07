@@ -9,7 +9,7 @@ import (
 
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
 func RunCmd(cmd []string, env Environment) (returnCode int) {
-	command := exec.Command(cmd[0], cmd[1:]...)
+	command := execCommand(cmd[0], cmd[1:])
 	command.Env = extractEnvironment(env)
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout
@@ -23,6 +23,10 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	}
 
 	return 0
+}
+
+func execCommand(bin string, args []string) *exec.Cmd {
+	return exec.Command(bin, args...)
 }
 
 func extractEnvironment(env Environment) []string {
