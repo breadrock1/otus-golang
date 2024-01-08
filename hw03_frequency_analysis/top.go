@@ -30,13 +30,7 @@ func computeWordsFrequency(inputText *string) *map[string]int {
 		if strings.EqualFold("", word) {
 			continue
 		}
-
-		_, isKeyAlreadyExists := topWordsMap[word]
-		if isKeyAlreadyExists {
-			topWordsMap[word]++
-		} else {
-			topWordsMap[word] = 1
-		}
+		topWordsMap[word]++
 	}
 	return &topWordsMap
 }
