@@ -17,7 +17,6 @@ go-telnet
 
 ### User defined
 .idea/
-.sync
 .DS_Store
 .DS_Store?
 ._*
