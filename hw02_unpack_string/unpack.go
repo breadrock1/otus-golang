@@ -24,13 +24,12 @@ func Unpack(inputString string) (string, error) {
 				return "", ErrInvalidString
 			}
 			deserializedSlice = append(deserializedSlice, string(rCurrSymbol))
-			continue
+			break
 		}
 
 		rPrevSymbol := runeArray[offset-1]
-		if unicode.IsSymbol(rCurrSymbol) || unicode.IsLetter(rCurrSymbol) {
+		if isNonDigitSymbol(rCurrSymbol) {
 			deserializedSlice = append(deserializedSlice, string(rCurrSymbol))
-			continue
 		}
 
 		if unicode.IsDigit(rCurrSymbol) {
@@ -60,6 +59,10 @@ func isArabicDigit(runeData rune) bool {
 		return isError == nil
 	}
 	return false
+}
+
+func isNonDigitSymbol(runeData rune) bool {
+	return unicode.IsSymbol(runeData) || unicode.IsLetter(runeData)
 }
 
 func revertDeserializedData(sliceData []string) string {
