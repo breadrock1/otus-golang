@@ -51,48 +51,17 @@ func extractUniqWords(wordsFreq *map[string]int) []UniqWord {
 }
 
 func extractTopArray(uniqWords []UniqWord) []string {
-	topWords := make([]string, 0, MaxTopSize)
-
-	groupedByFreq := groupByValue(uniqWords)
-	groupKeys := getSortedKeys(groupedByFreq)
-	for _, freqValue := range groupKeys {
-		if len(topWords) >= 10 {
-			break
+	sort.Slice(uniqWords, func(i, j int) bool {
+		a, b := uniqWords[i], uniqWords[j]
+		if a.Value == b.Value {
+			return a.Key < b.Key
 		}
-		words := groupedByFreq[freqValue]
-		topWords = append(topWords, words...)
-	}
-
-	return topWords[:MaxTopSize]
-}
-
-func groupByValue(uniqWords []UniqWord) map[int][]string {
-	groupedWords := make(map[int][]string)
-	for _, uWord := range uniqWords {
-		_, isKeyAlreadyExists := groupedWords[uWord.Value]
-		if isKeyAlreadyExists {
-			groupedWords[uWord.Value] = append(groupedWords[uWord.Value], uWord.Key)
-		} else {
-			groupedWords[uWord.Value] = []string{uWord.Key}
-		}
-	}
-
-	for _, group := range groupedWords {
-		sort.Strings(group)
-	}
-
-	return groupedWords
-}
-
-func getSortedKeys(groupedWords map[int][]string) []int {
-	keys := make([]int, 0)
-	for key := range groupedWords {
-		keys = append(keys, key)
-	}
-
-	sort.Slice(keys, func(i, j int) bool {
-		return keys[i] > keys[j]
+		return a.Value > b.Value
 	})
 
-	return keys
+	topWords := make([]string, 0)
+	for i := 0; i < MaxTopSize; i++ {
+		topWords = append(topWords, uniqWords[i].Key)
+	}
+	return topWords
 }
