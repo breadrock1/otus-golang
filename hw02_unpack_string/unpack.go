@@ -75,11 +75,6 @@ func revertDeserializedData(sliceData []string) string {
 	return strings.Join(reversedSlice, "")
 }
 
-func isArabicDigit(runeData rune) bool {
-	_, isError := strconv.Atoi(string(runeData))
-	return isError == nil
-}
-
 func extractSymbolData(runeSymbol rune, decodeSymbol rune) string {
 	number, _ := strconv.Atoi(string(decodeSymbol))
 	return strings.Repeat(string(runeSymbol), number)
