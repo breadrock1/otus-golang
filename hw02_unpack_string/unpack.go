@@ -20,7 +20,7 @@ func Unpack(inputString string) (string, error) {
 	for offset := len(runeArray) - 1; offset >= 0; offset-- {
 		rCurrSymbol := runeArray[offset]
 		if offset == 0 {
-			if unicode.IsDigit(rCurrSymbol) && isArabicDigit(rCurrSymbol) {
+			if isArabicDigit(rCurrSymbol) {
 				return "", ErrInvalidString
 			}
 			deserializedSlice = append(deserializedSlice, string(rCurrSymbol))
@@ -39,7 +39,7 @@ func Unpack(inputString string) (string, error) {
 				continue
 			}
 
-			if unicode.IsDigit(rPrevSymbol) && isArabicDigit(rPrevSymbol) {
+			if isArabicDigit(rPrevSymbol) {
 				return "", ErrInvalidString
 			}
 
@@ -52,6 +52,14 @@ func Unpack(inputString string) (string, error) {
 
 	resultString := revertDeserializedData(deserializedSlice)
 	return resultString, nil
+}
+
+func isArabicDigit(runeData rune) bool {
+	if unicode.IsDigit(runeData) {
+		_, isError := strconv.Atoi(string(runeData))
+		return isError == nil
+	}
+	return false
 }
 
 func revertDeserializedData(sliceData []string) string {
