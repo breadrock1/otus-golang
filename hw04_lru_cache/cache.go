@@ -1,6 +1,7 @@
 package hw04lrucache
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -23,11 +24,12 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 	l.Lock()
 	defer l.Unlock()
 
+	l.printCacheState("Before")
 	item, ok := l.items[key]
-
 	if ok {
 		l.queue.MoveToFront(item)
 		item.Value = value
+		l.printCacheState("After")
 		return true
 	}
 
@@ -39,7 +41,8 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 
 	item = l.queue.PushFront(value)
 	l.items[key] = item
-
+	l.printCacheState("After")
+	fmt.Printf("\n---------------------------------------------\n")
 	return false
 }
 
@@ -74,4 +77,23 @@ func NewCache(capacity int) Cache {
 		queue:    NewList(),
 		items:    make(map[Key]*ListItem, capacity),
 	}
+}
+
+func (l *lruCache) printCacheState(stage string) {
+	fmt.Printf("%s\n", stage)
+	fmt.Println("There is Queue values:")
+	prev := l.queue.Back()
+	for i := 0; i < 5; i++ {
+		if prev == nil {
+			break
+		}
+		fmt.Printf("%v\n", prev)
+		prev = prev.Prev
+	}
+
+	fmt.Println("\nThere is Cache values:")
+	for key, value := range l.items {
+		fmt.Printf("Key: %s, Val: %v\n", key, value.Value)
+	}
+	fmt.Printf("\n")
 }
