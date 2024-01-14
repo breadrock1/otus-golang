@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"net"
 	"time"
 )
 
@@ -12,10 +13,40 @@ type TelnetClient interface {
 	Receive() error
 }
 
-func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
-	// Place your code here.
-	return nil
+type implClient struct {
+	address    string
+	timeout    time.Duration
+	connection net.Conn
+	isClosed   bool
+	stdIn      io.Reader
+	stdOut     io.Writer
 }
 
-// Place your code here.
-// P.S. Author's solution takes no more than 50 lines.
+func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
+	return &implClient{
+		address: address,
+		timeout: timeout,
+		stdIn:   in,
+		stdOut:  out,
+	}
+}
+
+func (i implClient) Connect() error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i implClient) Close() error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i implClient) Send() error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i implClient) Receive() error {
+	//TODO implement me
+	panic("implement me")
+}
