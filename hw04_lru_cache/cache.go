@@ -1,7 +1,6 @@
 package hw04lrucache
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -16,7 +15,6 @@ type Cache interface {
 	Set(key Key, value interface{}) bool
 	Get(key Key) (interface{}, bool)
 	Clear()
-	PrintCacheState(stage string)
 }
 
 type lruCache struct {
@@ -83,23 +81,4 @@ func (l *lruCache) Clear() {
 	}
 
 	l.items = make(map[Key]*ListItem)
-}
-
-func (l *lruCache) PrintCacheState(stage string) {
-	fmt.Printf("%s\n", stage)
-	fmt.Println("There is Queue values:")
-	prev := l.queue.Back()
-	for i := 0; i < 5; i++ {
-		if prev == nil {
-			break
-		}
-		fmt.Printf("%v\n", prev)
-		prev = prev.Prev
-	}
-
-	fmt.Println("\nThere is Cache values:")
-	for key, value := range l.items {
-		fmt.Printf("Key: %s, Val: %v\n", key, value.Value)
-	}
-	fmt.Printf("\n")
 }
