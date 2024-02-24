@@ -7,10 +7,16 @@ import (
 
 type Key string
 
+type cacheItem struct {
+	key   Key
+	value interface{}
+}
+
 type Cache interface {
 	Set(key Key, value interface{}) bool
 	Get(key Key) (interface{}, bool)
 	Clear()
+	PrintCacheState(stage string)
 }
 
 type lruCache struct {
@@ -20,29 +26,36 @@ type lruCache struct {
 	items    map[Key]*ListItem
 }
 
+func NewCache(capacity int) Cache {
+	return &lruCache{
+		capacity: capacity,
+		queue:    NewList(),
+		items:    make(map[Key]*ListItem, capacity),
+	}
+}
+
 func (l *lruCache) Set(key Key, value interface{}) bool {
 	l.Lock()
 	defer l.Unlock()
 
-	l.printCacheState("Before")
+	cachedItem := cacheItem{key: key, value: value}
+
 	item, ok := l.items[key]
 	if ok {
 		l.queue.MoveToFront(item)
-		item.Value = value
-		l.printCacheState("After")
+		item.Value = cachedItem
 		return true
 	}
 
 	if l.queue.Len() == l.capacity {
 		removable := l.queue.Back()
 		l.queue.Remove(removable)
-		delete(l.items, key)
+		removableItem := removable.Value.(cacheItem)
+		delete(l.items, removableItem.key)
 	}
 
-	item = l.queue.PushFront(value)
+	item = l.queue.PushFront(cachedItem)
 	l.items[key] = item
-	l.printCacheState("After")
-	fmt.Printf("\n---------------------------------------------\n")
 	return false
 }
 
@@ -56,7 +69,8 @@ func (l *lruCache) Get(key Key) (interface{}, bool) {
 	}
 
 	l.queue.MoveToFront(item)
-	return item.Value, true
+	origValue := item.Value.(cacheItem).value
+	return origValue, true
 }
 
 func (l *lruCache) Clear() {
@@ -71,15 +85,7 @@ func (l *lruCache) Clear() {
 	l.items = make(map[Key]*ListItem)
 }
 
-func NewCache(capacity int) Cache {
-	return &lruCache{
-		capacity: capacity,
-		queue:    NewList(),
-		items:    make(map[Key]*ListItem, capacity),
-	}
-}
-
-func (l *lruCache) printCacheState(stage string) {
+func (l *lruCache) PrintCacheState(stage string) {
 	fmt.Printf("%s\n", stage)
 	fmt.Println("There is Queue values:")
 	prev := l.queue.Back()
