@@ -22,6 +22,10 @@ type list struct {
 	back   *ListItem
 }
 
+func NewList() List {
+	return &list{}
+}
+
 func (l *list) Len() int {
 	return l.length
 }
@@ -61,7 +65,7 @@ func (l *list) PushBack(v interface{}) *ListItem {
 	newItem := &ListItem{Value: v}
 
 	if l.length < 1 {
-		l.back = newItem
+		l.front = newItem
 	} else {
 		newItem.Prev = l.back
 		l.back.Next = newItem
@@ -106,8 +110,4 @@ func (l *list) MoveToFront(i *ListItem) {
 	l.front = i
 
 	l.length++
-}
-
-func NewList() List {
-	return &list{}
 }
