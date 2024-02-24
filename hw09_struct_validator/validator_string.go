@@ -1,4 +1,4 @@
-package hw09structvalidator //nolint:golint,stylecheck
+package hw09structvalidator
 
 import (
 	"fmt"
@@ -60,7 +60,7 @@ func (r *stringRules) fieldName() string {
 }
 
 func (r *stringRules) validate(errs ValidationErrors, value reflect.Value) ValidationErrors {
-	switch r.vKind {
+	switch r.vKind { //nolint:exhaustive
 	case validateRegular:
 		return r.validateRegular(errs, value)
 	default:

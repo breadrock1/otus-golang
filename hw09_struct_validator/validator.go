@@ -1,4 +1,4 @@
-package hw09structvalidator //nolint:golint,stylecheck
+package hw09structvalidator
 
 import (
 	"reflect"
@@ -51,17 +51,13 @@ func Validate(v interface{}) error {
 	return validateStruct(rules, value)
 }
 
-// Правила валидации сохраняются для всех полей структуры, даже для тех, которые не надо валидировать.
-// В результате при валидации не надо матчить правила к полям по имени поля,
-// можно просто последовательно перебирать поля
-
 func parseStructRules(value reflect.Value) (structRules, error) {
 	var sr structRules
 	for i := 0; i < value.NumField(); i++ {
 		fieldType := value.Type().Field(i)
 		if fieldType.PkgPath != "" {
 			sr = append(sr, nil)
-			continue // непубличные поля не валидируются
+			continue
 		}
 
 		validateTag := fieldType.Tag.Get(validatorTag)
@@ -85,14 +81,14 @@ func parseFieldRules(typ reflect.StructField, validateTag string) (fieldRules, e
 	var rules fieldRules
 	var err error
 
-	switch kind {
+	switch kind { //nolint:exhaustive
 	case reflect.String:
 		rules, err = fillStringRules(field, validateTag, validateRegular)
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		rules, err = fillIntRules(field, validateTag, validateRegular)
 	case reflect.Slice:
 		sliceKind := typ.Type.Elem().Kind()
-		switch sliceKind {
+		switch sliceKind { //nolint:exhaustive
 		case reflect.String:
 			rules, err = fillStringRules(field, validateTag, validateSlice)
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
