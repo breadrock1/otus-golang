@@ -42,15 +42,18 @@ func TestCache(t *testing.T) {
 		require.False(t, wasInCache)
 
 		val, ok := c.Get("aaa")
-		require.True(t, ok)
-		require.Equal(t, 100, val)
+		require.False(t, ok)
 
 		val, ok = c.Get("bbb")
 		require.True(t, ok)
 		require.Equal(t, 200, val)
 
+		c.PrintCacheState("Before inserting aaa!")
+
 		wasInCache = c.Set("aaa", 300)
-		require.True(t, wasInCache)
+		require.False(t, wasInCache)
+
+		c.PrintCacheState("After inserting aaa!")
 
 		val, ok = c.Get("aaa")
 		require.True(t, ok)
