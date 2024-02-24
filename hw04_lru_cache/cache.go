@@ -36,7 +36,7 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 	l.Lock()
 	defer l.Unlock()
 
-	cachedItem := cacheItem{key: key, value: value}
+	cachedItem := &cacheItem{key: key, value: value}
 
 	item, ok := l.items[key]
 	if ok {
@@ -48,7 +48,7 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 	if l.queue.Len() == l.capacity {
 		removable := l.queue.Back()
 		l.queue.Remove(removable)
-		removableItem := removable.Value.(cacheItem)
+		removableItem := removable.Value.(*cacheItem)
 		delete(l.items, removableItem.key)
 	}
 
@@ -67,7 +67,7 @@ func (l *lruCache) Get(key Key) (interface{}, bool) {
 	}
 
 	l.queue.MoveToFront(item)
-	origValue := item.Value.(cacheItem).value
+	origValue := item.Value.(*cacheItem).value
 	return origValue, true
 }
 
