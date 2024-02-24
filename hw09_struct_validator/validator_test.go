@@ -1,17 +1,17 @@
-package hw09structvalidator //nolint:golint,stylecheck
+package hw09structvalidator
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"regexp"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
 
-// Test the function on different structures and other types.
 type (
 	User struct {
 		ID     string `json:"id" validate:"len:36"`
