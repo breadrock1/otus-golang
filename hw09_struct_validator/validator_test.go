@@ -1,8 +1,11 @@
-package hw09structvalidator
+package hw09structvalidator //nolint:golint,stylecheck
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/stretchr/testify/require"
+	"regexp"
 	"testing"
 )
 
@@ -13,11 +16,11 @@ type (
 	User struct {
 		ID     string `json:"id" validate:"len:36"`
 		Name   string
-		Age    int             `validate:"min:18|max:50"`
-		Email  string          `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
-		Role   UserRole        `validate:"in:admin,stuff"`
-		Phones []string        `validate:"len:11"`
-		meta   json.RawMessage //nolint:unused
+		Age    int      `validate:"min:18|max:50"`
+		Email  string   `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
+		Role   UserRole `validate:"in:admin,stuff"`
+		Phones []string `validate:"len:11"`
+		meta   json.RawMessage
 	}
 
 	App struct {
@@ -109,7 +112,7 @@ var wrongInts = Ints{
 	Int64Field: 100500,
 }
 
-func TestValidate(t *testing.T) {
+func TestValidateSuccess(t *testing.T) {
 	tests := []struct {
 		name string
 		in   interface{}
@@ -148,24 +151,152 @@ func TestValidate(t *testing.T) {
 		},
 	}
 
-	for i, tt := range tests {
-		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
-			tt := tt
-			t.Parallel()
-
-			// Place your code here.
-			_ = tt
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := Validate(tt.in)
+			require.NoError(t, err)
 		})
 	}
 }
 
 func TestValidateFail(t *testing.T) {
+	emailRG := regexp.MustCompile(`^\w+@\w+\.\w+$`)
+
+	tests := []struct {
+		in          interface{}
+		expectedErr error
+	}{
+		{
+			in: emptyUser,
+			expectedErr: ValidationErrors{
+				ValidationError{Field: "ID", Err: &ErrStrLen{0, 36}},
+				ValidationError{Field: "Age", Err: &ErrIntMin{0, 18}},
+				ValidationError{Field: "Email", Err: &ErrStrRegexp{"", emailRG}},
+				ValidationError{Field: "Role", Err: &ErrStrIn{"", []string{"admin", "stuff"}}},
+			},
+		},
+		{
+			in: &emptyUser,
+			expectedErr: ValidationErrors{
+				ValidationError{Field: "ID", Err: &ErrStrLen{0, 36}},
+				ValidationError{Field: "Age", Err: &ErrIntMin{0, 18}},
+				ValidationError{Field: "Email", Err: &ErrStrRegexp{"", emailRG}},
+				ValidationError{Field: "Role", Err: &ErrStrIn{"", []string{"admin", "stuff"}}},
+			},
+		},
+		{
+			in: wrongUser,
+			expectedErr: ValidationErrors{
+				ValidationError{Field: "ID", Err: &ErrStrLen{9, 36}},
+				ValidationError{Field: "Age", Err: &ErrIntMax{51, 50}},
+				ValidationError{Field: "Email", Err: &ErrStrRegexp{"test.mail.ru", emailRG}},
+				ValidationError{Field: "Role", Err: &ErrStrIn{"hacker", []string{"admin", "stuff"}}},
+				ValidationError{Field: "Phones", Err: &ErrStrLen{2, 11}},
+			},
+		},
+		{
+			in: wrongResponse,
+			expectedErr: ValidationErrors{
+				ValidationError{Field: "Code", Err: &ErrIntIn{418, []int64{200, 404, 500}}},
+			},
+		},
+		{
+			in: wrongInts,
+			expectedErr: ValidationErrors{
+				ValidationError{Field: "IntField", Err: &ErrIntMin{0, 1}},
+				ValidationError{Field: "Int8Field", Err: &ErrIntMin{0, 1}},
+				ValidationError{Field: "Int16Field", Err: &ErrIntMin{0, 1}},
+				ValidationError{Field: "Int32Field", Err: &ErrIntMin{0, 1}},
+				ValidationError{Field: "Int64Field", Err: &ErrIntMax{100500, 100}},
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
+			err := Validate(tt.in)
+			require.Equal(t, tt.expectedErr, err)
+		})
+	}
 }
 
 func TestErrIncorrectUse(t *testing.T) {
+	tests := []struct {
+		name string
+		in   interface{}
+	}{
+		{
+			name: "IncorrectKind",
+			in:   "text",
+		},
+		{
+			name: "IncorrectFieldType",
+			in: struct {
+				Width float64 `validate:"min:10"`
+			}{},
+		},
+		{
+			name: "UnknownRule int",
+			in: struct {
+				Value int `validate:"odd:true"`
+			}{},
+		},
+		{
+			name: "UnknownRule string",
+			in: struct {
+				Text string `validate:"spell:true"`
+			}{},
+		},
+		{
+			name: "IncorrectCondition string-len",
+			in: struct {
+				Value string `validate:"len:oops"`
+			}{},
+		},
+		{
+			name: "IncorrectCondition string-regexp",
+			in: struct {
+				Value string `validate:"regexp:+"`
+			}{},
+		},
+		{
+			name: "IncorrectCondition int-min",
+			in: struct {
+				Value int `validate:"min:oops"`
+			}{},
+		},
+		{
+			name: "IncorrectCondition int-no value",
+			in: struct {
+				Value int `validate:"min"`
+			}{},
+		},
+		{
+			name: "IncorrectCondition int-in",
+			in: struct {
+				Value int `validate:"in:200,-,500"`
+			}{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := Validate(tt.in)
+			require.True(t, errors.Is(err, &ErrIncorrectUse{}))
+		})
+	}
 }
 
 func BenchmarkValidateSuccess(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			_ = Validate(user)
+			_ = Validate(app)
+			_ = Validate(token)
+			_ = Validate(response)
+			_ = Validate(privateField)
+			_ = Validate(ints)
+		}
+	})
 }
 
 func BenchmarkValidateFail(b *testing.B) {
