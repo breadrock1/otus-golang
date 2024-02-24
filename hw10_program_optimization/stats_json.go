@@ -2,12 +2,12 @@ package hw10programoptimization
 
 import (
 	json "encoding/json"
+
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
 )
 
-// suppress unused package warning
 var (
 	_ *json.RawMessage
 	_ *jlexer.Lexer
@@ -58,6 +58,7 @@ func easyjsonE3ab7953DecodeGithubComAnfilatOtusGoHw10ProgramOptimization(in *jle
 		in.Consumed()
 	}
 }
+
 func easyjsonE3ab7953EncodeGithubComAnfilatOtusGoHw10ProgramOptimization(out *jwriter.Writer, in User) {
 	out.RawByte('{')
 	first := true
@@ -65,61 +66,61 @@ func easyjsonE3ab7953EncodeGithubComAnfilatOtusGoHw10ProgramOptimization(out *jw
 	{
 		const prefix string = ",\"ID\":"
 		out.RawString(prefix[1:])
-		out.Int(int(in.ID))
+		out.Int(in.ID)
 	}
 	{
 		const prefix string = ",\"Name\":"
 		out.RawString(prefix)
-		out.String(string(in.Name))
+		out.String(in.Name)
 	}
 	{
 		const prefix string = ",\"Username\":"
 		out.RawString(prefix)
-		out.String(string(in.Username))
+		out.String(in.Username)
 	}
 	{
 		const prefix string = ",\"Email\":"
 		out.RawString(prefix)
-		out.String(string(in.Email))
+		out.String(in.Email)
 	}
 	{
 		const prefix string = ",\"Phone\":"
 		out.RawString(prefix)
-		out.String(string(in.Phone))
+		out.String(in.Phone)
 	}
 	{
 		const prefix string = ",\"Password\":"
 		out.RawString(prefix)
-		out.String(string(in.Password))
+		out.String(in.Password)
 	}
 	{
 		const prefix string = ",\"Address\":"
 		out.RawString(prefix)
-		out.String(string(in.Address))
+		out.String(in.Address)
 	}
 	out.RawByte('}')
 }
 
-// MarshalJSON supports json.Marshaler interface
+// MarshalJSON supports json.Marshaler interface.
 func (v User) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
 	easyjsonE3ab7953EncodeGithubComAnfilatOtusGoHw10ProgramOptimization(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
-// MarshalEasyJSON supports easyjson.Marshaler interface
+// MarshalEasyJSON supports easyjson.Marshaler interface.
 func (v User) MarshalEasyJSON(w *jwriter.Writer) {
 	easyjsonE3ab7953EncodeGithubComAnfilatOtusGoHw10ProgramOptimization(w, v)
 }
 
-// UnmarshalJSON supports json.Unmarshaler interface
+// UnmarshalJSON supports json.Unmarshaler interface.
 func (v *User) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
 	easyjsonE3ab7953DecodeGithubComAnfilatOtusGoHw10ProgramOptimization(&r, v)
 	return r.Error()
 }
 
-// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface.
 func (v *User) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonE3ab7953DecodeGithubComAnfilatOtusGoHw10ProgramOptimization(l, v)
 }

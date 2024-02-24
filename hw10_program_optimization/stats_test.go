@@ -1,7 +1,6 @@
 //go:build !bench
-// +build !bench
 
-package hw10programoptimization //nolint:golint,stylecheck
+package hw10programoptimization
 
 import (
 	"archive/zip"

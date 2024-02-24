@@ -1,4 +1,4 @@
-package hw10programoptimization //nolint:golint,stylecheck
+package hw10programoptimization
 
 import (
 	"bufio"
@@ -8,8 +8,6 @@ import (
 
 	"github.com/mailru/easyjson"
 )
-
-// очень хочется убрать здесь все поля кроме Email, но кажется это будет читерство
 
 //easyjson:json
 type User struct {
@@ -24,8 +22,6 @@ type User struct {
 
 type DomainStat map[string]int
 
-// из условий непонятно, можно ли менять функцию GetDomainStat, поэтому она остается неизменной
-
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	u, err := getUsers(r)
 	if err != nil {
@@ -36,8 +32,6 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 
 type NextUser = func() (*User, bool, error)
 
-// да error здесь всегда nil, но надо вписаться в существующую GetDomainStat
-//
 //nolint:unparam
 func getUsers(r io.Reader) (NextUser, error) {
 	var auser User
