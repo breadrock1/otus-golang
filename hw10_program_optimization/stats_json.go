@@ -35,19 +35,19 @@ func easyjsonE3ab7953DecodeGithubComAnfilatOtusGoHw10ProgramOptimization(in *jle
 		}
 		switch key {
 		case "ID":
-			out.ID = int(in.Int())
+			out.ID = in.Int()
 		case "Name":
-			out.Name = string(in.String())
+			out.Name = in.String()
 		case "Username":
-			out.Username = string(in.String())
+			out.Username = in.String()
 		case "Email":
-			out.Email = string(in.String())
+			out.Email = in.String()
 		case "Phone":
-			out.Phone = string(in.String())
+			out.Phone = in.String()
 		case "Password":
-			out.Password = string(in.String())
+			out.Password = in.String()
 		case "Address":
-			out.Address = string(in.String())
+			out.Address = in.String()
 		default:
 			in.SkipRecursive()
 		}
