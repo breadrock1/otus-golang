@@ -60,7 +60,7 @@ func extractTopArray(uniqWords []UniqWord) []string {
 	})
 
 	topWords := make([]string, 0)
-	for i := 0; i < MaxTopSize; i++ {
+	for i := 0; i < len(uniqWords) && i < MaxTopSize; i++ {
 		topWords = append(topWords, uniqWords[i].Key)
 	}
 	return topWords
