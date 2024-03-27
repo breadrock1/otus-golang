@@ -41,27 +41,61 @@ func TestCache(t *testing.T) {
 		wasInCache = c.Set("ggg", 800)
 		require.False(t, wasInCache)
 
-		val, ok := c.Get("aaa")
-		require.False(t, ok)
+		_, ok1 := c.Get("aaa")
+		require.False(t, ok1)
 
-		val, ok = c.Get("bbb")
-		require.True(t, ok)
-		require.Equal(t, 200, val)
+		currVal2, ok2 := c.Get("bbb")
+		require.True(t, ok2)
+		require.Equal(t, 200, currVal2)
 
 		wasInCache = c.Set("aaa", 300)
 		require.False(t, wasInCache)
 
-		val, ok = c.Get("aaa")
-		require.True(t, ok)
-		require.Equal(t, 300, val)
+		currVal3, ok3 := c.Get("aaa")
+		require.True(t, ok3)
+		require.Equal(t, 300, currVal3)
 
-		val, ok = c.Get("ccc")
-		require.False(t, ok)
-		require.Nil(t, val)
+		currVal4, ok4 := c.Get("ccc")
+		require.False(t, ok4)
+		require.Nil(t, currVal4)
 	})
 
-	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+	t.Run("ejection", func(t *testing.T) {
+		c := NewCache(3)
+		c.Set("aaa", 100)
+		c.Set("bbb", 200)
+		c.Set("ccc", 300)
+		c.Set("ddd", 400)
+
+		_, ok := c.Get("aaa")
+		require.False(t, ok)
+
+		_, ok = c.Get("bbb")
+		require.True(t, ok)
+
+		_, ok = c.Get("ccc")
+		require.True(t, ok)
+
+		_, ok = c.Get("ddd")
+		require.True(t, ok)
+	})
+
+	t.Run("lru", func(t *testing.T) {
+		c := NewCache(3)
+		c.Set("0", 100)
+		c.Set("1", 200)
+		c.Set("2", 300)
+
+		for i := 0; i < 100; i++ {
+			c.Set(Key(strconv.Itoa(rand.Intn(3))), rand.Intn(42))
+			c.Get(Key(strconv.Itoa(rand.Intn(3))))
+		}
+		c.Set("strike", 777)
+
+		_, ok0 := c.Get("0")
+		_, ok1 := c.Get("1")
+		_, ok2 := c.Get("2")
+		require.ElementsMatch(t, []bool{true, true, false}, []bool{ok0, ok1, ok2})
 	})
 }
 
