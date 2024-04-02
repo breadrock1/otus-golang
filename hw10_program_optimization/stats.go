@@ -1,13 +1,15 @@
 package hw10programoptimization
 
 import (
-	"encoding/json"
+	"bufio"
 	"fmt"
 	"io"
-	"regexp"
 	"strings"
+
+	"github.com/mailru/easyjson"
 )
 
+//easyjson:json
 type User struct {
 	ID       int
 	Name     string
@@ -28,39 +30,60 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	return countDomains(u, domain)
 }
 
-type users [100_000]User
+type NextUser = func() (*User, bool, error)
 
-func getUsers(r io.Reader) (result users, err error) {
-	content, err := io.ReadAll(r)
-	if err != nil {
+//nolint:unparam
+func getUsers(r io.Reader) (NextUser, error) {
+	var auser User
+	s := bufio.NewScanner(r)
+
+	nextUser := func() (user *User, ok bool, err error) {
+		ok = s.Scan()
+
+		if !ok {
+			err = s.Err()
+			if err != nil {
+				err = fmt.Errorf("error with reading data: %w", err)
+			}
+			return
+		}
+
+		if err = easyjson.Unmarshal(s.Bytes(), &auser); err != nil {
+			err = fmt.Errorf("error with reading user: %w", err)
+			return
+		}
+
+		user = &auser
 		return
 	}
 
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
-			return
-		}
-		result[i] = user
-	}
-	return
+	return nextUser, nil
 }
 
-func countDomains(u users, domain string) (DomainStat, error) {
+func countDomains(nextUser NextUser, domain string) (DomainStat, error) {
 	result := make(DomainStat)
+	domainMask := "." + domain
 
-	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
+	for {
+		user, ok, err := nextUser()
 		if err != nil {
 			return nil, err
 		}
+		if !ok {
+			break
+		}
+
+		email := strings.ToLower(user.Email)
+		matched := strings.HasSuffix(email, domainMask)
 
 		if matched {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
-			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+			n := strings.LastIndex(email, "@")
+			if n == -1 {
+				return nil, fmt.Errorf("wrong email: %s", email)
+			}
+			result[email[n+1:]]++
 		}
 	}
+
 	return result, nil
 }
