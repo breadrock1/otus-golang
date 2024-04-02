@@ -79,4 +79,21 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+
+	t.Run("one word", func(t *testing.T) {
+		s := "слово"
+		expected := []string{"слово"}
+		require.ElementsMatch(t, expected, Top10(s))
+	})
+
+	t.Run("limit 10 words", func(t *testing.T) {
+		s := "один два три четыре пять шесть семь восемь девять десять одиннадцать"
+		require.Len(t, Top10(s), 10)
+	})
+
+	t.Run("numerics", func(t *testing.T) {
+		s := "password is 123! 1-2-3?"
+		expected := []string{"password", "is", "123!", "1-2-3?"}
+		require.ElementsMatch(t, expected, Top10(s))
+	})
 }
