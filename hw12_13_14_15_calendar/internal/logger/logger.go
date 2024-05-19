@@ -6,22 +6,30 @@ import (
 	"os"
 )
 
-type ServiceLogger struct {
+type Logger struct {
 	InfoLogger *log.Logger
 	WarnLogger *log.Logger
 	ErrLogger  *log.Logger
 	loggerFile *os.File
 }
 
-func New(cfg *config.Config) (*ServiceLogger, error) {
+func New(cfg *config.LoggerConfig) (*Logger, error) {
+	logFlags := log.Ldate | log.Ltime | log.Lshortfile
+	if !cfg.EnableFileLog {
+		return &Logger{
+			InfoLogger: log.New(os.Stdout, "INFO: ", logFlags),
+			WarnLogger: log.New(os.Stdout, "WARN: ", logFlags),
+			ErrLogger:  log.New(os.Stdout, "ERROR: ", logFlags),
+		}, nil
+	}
+
 	osFlags := os.O_APPEND | os.O_CREATE | os.O_WRONLY
-	file, err := os.OpenFile(cfg.Logger.FilePath, osFlags, 0666)
+	file, err := os.OpenFile(cfg.FilePath, osFlags, 0666)
 	if err != nil {
 		return nil, err
 	}
 
-	logFlags := log.Ldate | log.Ltime | log.Lshortfile
-	serviceLogger := &ServiceLogger{
+	serviceLogger := &Logger{
 		InfoLogger: log.New(file, "INFO: ", logFlags),
 		WarnLogger: log.New(file, "WARN: ", logFlags),
 		ErrLogger:  log.New(file, "ERROR: ", logFlags),
@@ -30,14 +38,14 @@ func New(cfg *config.Config) (*ServiceLogger, error) {
 	return serviceLogger, nil
 }
 
-func (l *ServiceLogger) Info(msg ...string) {
+func (l *Logger) Info(msg ...string) {
 	l.InfoLogger.Println(msg)
 }
 
-func (l *ServiceLogger) Warn(msg ...string) {
+func (l *Logger) Warn(msg ...string) {
 	l.WarnLogger.Println(msg)
 }
 
-func (l *ServiceLogger) Error(msg ...string) {
+func (l *Logger) Error(msg ...string) {
 	l.ErrLogger.Println(msg)
 }

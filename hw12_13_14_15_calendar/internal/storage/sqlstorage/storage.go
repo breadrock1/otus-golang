@@ -10,11 +10,15 @@ import (
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage"
 )
 
-type Storage struct {
+type sqlStorage struct {
 	db *sql.DB
 }
 
-func (s *Storage) Connect(ctx context.Context, connect string) error {
+func New() storage.Storage {
+	return &sqlStorage{}
+}
+
+func (s *sqlStorage) Connect(ctx context.Context, connect string) error {
 	db, err := sql.Open("pgx", connect)
 	if err != nil {
 		log.Fatalln("djgbdfg")
@@ -24,11 +28,11 @@ func (s *Storage) Connect(ctx context.Context, connect string) error {
 	return s.db.PingContext(ctx)
 }
 
-func (s *Storage) Close(_ context.Context) error {
+func (s *sqlStorage) Close(_ context.Context) error {
 	return s.db.Close()
 }
 
-func (s *Storage) Create(ctx context.Context, event *storage.Event) (int, error) {
+func (s *sqlStorage) Create(ctx context.Context, event storage.Event) (int, error) {
 	var query string
 	var args []interface{}
 
@@ -47,7 +51,7 @@ func (s *Storage) Create(ctx context.Context, event *storage.Event) (int, error)
 	return id, nil
 }
 
-func (s *Storage) Update(ctx context.Context, id int, event *storage.Event) error {
+func (s *sqlStorage) Update(ctx context.Context, id int, event storage.Event) error {
 	var query string
 	var args []interface{}
 
@@ -76,7 +80,7 @@ func (s *Storage) Update(ctx context.Context, id int, event *storage.Event) erro
 	return nil
 }
 
-func (s *Storage) Delete(ctx context.Context, id int) error {
+func (s *sqlStorage) Delete(ctx context.Context, id int) error {
 	var query string
 	var args []interface{}
 
@@ -92,7 +96,7 @@ func (s *Storage) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s *Storage) DeleteAll(ctx context.Context) error {
+func (s *sqlStorage) DeleteAll(ctx context.Context) error {
 	var query string
 	var args []interface{}
 
@@ -108,7 +112,7 @@ func (s *Storage) DeleteAll(ctx context.Context) error {
 	return nil
 }
 
-func (s *Storage) ListAll(ctx context.Context) ([]*storage.Event, error) {
+func (s *sqlStorage) ListAll(ctx context.Context) ([]storage.Event, error) {
 	var query string
 
 	//query = `
@@ -120,7 +124,7 @@ func (s *Storage) ListAll(ctx context.Context) ([]*storage.Event, error) {
 	return s.extractList(ctx, query)
 }
 
-func (s *Storage) ListDay(ctx context.Context, date *time.Time) ([]*storage.Event, error) {
+func (s *sqlStorage) ListDay(ctx context.Context, date time.Time) ([]storage.Event, error) {
 	var query string
 	year, month, day := date.Date()
 
@@ -136,7 +140,7 @@ func (s *Storage) ListDay(ctx context.Context, date *time.Time) ([]*storage.Even
 	return s.extractList(ctx, query, year, month, day)
 }
 
-func (s *Storage) ListWeek(ctx context.Context, date time.Time) ([]*storage.Event, error) {
+func (s *sqlStorage) ListWeek(ctx context.Context, date time.Time) ([]storage.Event, error) {
 	var query string
 	year, week := date.ISOWeek()
 
@@ -151,7 +155,7 @@ func (s *Storage) ListWeek(ctx context.Context, date time.Time) ([]*storage.Even
 	return s.extractList(ctx, query, year, week)
 }
 
-func (s *Storage) ListMonth(ctx context.Context, date time.Time) ([]*storage.Event, error) {
+func (s *sqlStorage) ListMonth(ctx context.Context, date time.Time) ([]storage.Event, error) {
 	var query string
 	year, month, _ := date.Date()
 
@@ -166,7 +170,7 @@ func (s *Storage) ListMonth(ctx context.Context, date time.Time) ([]*storage.Eve
 	return s.extractList(ctx, query, year, month)
 }
 
-func (s *Storage) IsTimeBusy(ctx context.Context, userID int, start, stop time.Time, excludeID int) (bool, error) {
+func (s *sqlStorage) IsTimeBusy(ctx context.Context, userID int, start, stop time.Time, excludeID int) (bool, error) {
 	var query string
 
 	//query := `
@@ -187,7 +191,7 @@ func (s *Storage) IsTimeBusy(ctx context.Context, userID int, start, stop time.T
 	return count > 0, nil
 }
 
-func (s *Storage) extractList(ctx context.Context, query string, args ...interface{}) (resultEvent []*storage.Event, errEvent error) {
+func (s *sqlStorage) extractList(ctx context.Context, query string, args ...interface{}) (resultEvent []storage.Event, errEvent error) {
 	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("db query: %w", err)
@@ -221,7 +225,7 @@ func (s *Storage) extractList(ctx context.Context, query string, args ...interfa
 			event.Notification = (*time.Duration)(&notification.Int64)
 		}
 
-		resultEvent = append(resultEvent, &event)
+		resultEvent = append(resultEvent, event)
 	}
 
 	if err := rows.Err(); err != nil {

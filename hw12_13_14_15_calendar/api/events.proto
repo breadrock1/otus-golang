@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package calendar.v1;
+option go_package = "calendar/v1";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+message Event {
+    int32 id = 1;
+    int32 user_id = 2;
+    google.protobuf.Duration notification = 3;
+    google.protobuf.Timestamp start = 4;
+    google.protobuf.Timestamp stop = 5;
+    string title = 6;
+    string description = 7;
+}
+
+message DeleteEvent {
+  int32 id = 1;
+}
+
+message DeleteResponse {}
+
+message CreateResponse {
+    int32 id = 1;
+}
+
+message UpdateResponse {}
+
+message ListPerDatetime {
+  google.protobuf.Timestamp datetime = 1;
+}
+
+message ListEventsResponse {
+    repeated Event events = 1;
+}
+
+service Calendar {
+    rpc Create(Event) returns (CreateResponse) {}
+    rpc Update(Event) returns (UpdateResponse) {}
+    rpc Delete(DeleteEvent) returns (DeleteResponse) {}
+    rpc ListPerDay(ListPerDatetime) returns (ListEventsResponse) {}
+    rpc ListPerWeek(ListPerDatetime) returns (ListEventsResponse) {}
+    rpc ListPerMonth(ListPerDatetime) returns (ListEventsResponse) {}
+}

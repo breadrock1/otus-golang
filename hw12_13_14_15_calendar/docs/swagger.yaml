@@ -1,0 +1,263 @@
+definitions:
+  internalhttp.BadRequestForm:
+    properties:
+      message:
+        example: Bad Request message
+        type: string
+      status:
+        example: 400
+        type: integer
+    type: object
+  internalhttp.DatetimeForm:
+    properties:
+      datetime:
+        example: "2024-05-10T10:07:35Z"
+        type: string
+    type: object
+  internalhttp.ResponseForm:
+    properties:
+      message:
+        example: Done
+        type: string
+      status:
+        example: 200
+        type: integer
+    type: object
+  internalhttp.ServerErrorForm:
+    properties:
+      message:
+        example: Server Error message
+        type: string
+      status:
+        example: 503
+        type: integer
+    type: object
+  storage.Event:
+    properties:
+      description:
+        example: Alarm to wake up
+        type: string
+      id:
+        type: integer
+      notification:
+        allOf:
+        - $ref: '#/definitions/time.Duration'
+        example: 10
+      start:
+        example: "2024-05-10T10:07:35Z"
+        type: string
+      stop:
+        example: "2024-05-11T10:07:35Z"
+        type: string
+      title:
+        example: Alarm
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  time.Duration:
+    enum:
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    type: integer
+    x-enum-varnames:
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+info:
+  contact: {}
+paths:
+  /calendar/create:
+    post:
+      description: Create new event by form
+      operationId: create
+      parameters:
+      - description: Event to create
+        in: body
+        name: jsonQuery
+        required: true
+        schema:
+          $ref: '#/definitions/storage.Event'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Created event: 1345'
+          schema:
+            $ref: '#/definitions/internalhttp.ResponseForm'
+        "400":
+          description: Bad request message
+          schema:
+            $ref: '#/definitions/internalhttp.BadRequestForm'
+        "503":
+          description: Server does not available
+          schema:
+            $ref: '#/definitions/internalhttp.ServerErrorForm'
+      summary: Create event
+      tags:
+      - calendar
+  /calendar/event/{id}:
+    delete:
+      description: Delete existing event by form
+      operationId: delete
+      parameters:
+      - description: Event id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            $ref: '#/definitions/internalhttp.ResponseForm'
+        "400":
+          description: Bad request message
+          schema:
+            $ref: '#/definitions/internalhttp.BadRequestForm'
+        "503":
+          description: Server does not available
+          schema:
+            $ref: '#/definitions/internalhttp.ServerErrorForm'
+      summary: Delete event
+      tags:
+      - calendar
+    put:
+      description: Updated existing event by form
+      operationId: update
+      parameters:
+      - description: Event id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Event to update
+        in: body
+        name: jsonQuery
+        required: true
+        schema:
+          $ref: '#/definitions/storage.Event'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            $ref: '#/definitions/internalhttp.ResponseForm'
+        "400":
+          description: Bad request message
+          schema:
+            $ref: '#/definitions/internalhttp.BadRequestForm'
+        "503":
+          description: Server does not available
+          schema:
+            $ref: '#/definitions/internalhttp.ServerErrorForm'
+      summary: Update event
+      tags:
+      - calendar
+  /calendar/list/day:
+    post:
+      description: Get all events per day by datetime form
+      operationId: list-per-day
+      parameters:
+      - description: Get events per day
+        in: body
+        name: jsonQuery
+        required: true
+        schema:
+          $ref: '#/definitions/internalhttp.DatetimeForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            $ref: '#/definitions/internalhttp.ResponseForm'
+        "400":
+          description: Bad request message
+          schema:
+            $ref: '#/definitions/internalhttp.BadRequestForm'
+        "503":
+          description: Server does not available
+          schema:
+            $ref: '#/definitions/internalhttp.ServerErrorForm'
+      summary: Get all events per day
+      tags:
+      - calendar
+  /calendar/list/month:
+    post:
+      description: Get all events per month by datetime form
+      operationId: list-per-month
+      parameters:
+      - description: Get events per month
+        in: body
+        name: jsonQuery
+        required: true
+        schema:
+          $ref: '#/definitions/internalhttp.DatetimeForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            $ref: '#/definitions/internalhttp.ResponseForm'
+        "400":
+          description: Bad request message
+          schema:
+            $ref: '#/definitions/internalhttp.BadRequestForm'
+        "503":
+          description: Server does not available
+          schema:
+            $ref: '#/definitions/internalhttp.ServerErrorForm'
+      summary: Get all events per month
+      tags:
+      - calendar
+  /calendar/list/week:
+    post:
+      description: Get all events per week by datetime form
+      operationId: list-per-week
+      parameters:
+      - description: Get events per week
+        in: body
+        name: jsonQuery
+        required: true
+        schema:
+          $ref: '#/definitions/internalhttp.DatetimeForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            $ref: '#/definitions/internalhttp.ResponseForm'
+        "400":
+          description: Bad request message
+          schema:
+            $ref: '#/definitions/internalhttp.BadRequestForm'
+        "503":
+          description: Server does not available
+          schema:
+            $ref: '#/definitions/internalhttp.ServerErrorForm'
+      summary: Get all events per week
+      tags:
+      - calendar
+swagger: "2.0"

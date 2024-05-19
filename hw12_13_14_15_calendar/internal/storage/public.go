@@ -5,24 +5,24 @@ import (
 	"time"
 )
 
-type StorageService interface {
-	Storage
+type Storage interface {
+	Service
 	Events
 }
 
-type Storage interface {
+type Service interface {
 	Connect(ctx context.Context, connect string) error
 	Close(ctx context.Context) error
 }
 
 type Event struct {
 	ID           int
-	Title        string
-	Start        time.Time
-	Stop         time.Time
-	Description  string
-	UserID       int
-	Notification *time.Duration
+	Title        string         `json:"title" example:"Alarm"`
+	Start        time.Time      `json:"start" example:"2024-05-10T10:07:35Z"`
+	Stop         time.Time      `json:"stop" example:"2024-05-11T10:07:35Z"`
+	Description  string         `json:"description" example:"Alarm to wake up"`
+	UserID       int            `json:"user_id" example:"1"`
+	Notification *time.Duration `json:"notification" example:"10"`
 }
 
 type Events interface {

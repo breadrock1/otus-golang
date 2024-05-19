@@ -1,8 +1,12 @@
 BIN := "./bin/calendar"
+PROTO_BIN="~/go/bin/protoc-gen-go"
 DOCKER_IMG="calendar:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
+
+protoc:
+	${PROTO_BIN} -I ./api events.proto --go_out=./internal/server/grpc/ --go_opt=paths=source_relative
 
 build:
 	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
