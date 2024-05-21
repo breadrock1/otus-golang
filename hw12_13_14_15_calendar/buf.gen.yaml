@@ -1,0 +1,11 @@
+version: v1
+plugins:
+  - plugin: go
+    out: internal/server/grpcserv
+    opt:
+      - paths=source_relative
+  - plugin: go-grpc
+    out: internal/server/grpcserv
+    opt:
+      - paths=source_relative
+

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-package calendar.v1;
-option go_package = "calendar/v1";
+package calendar;
+option go_package = ".;grpcserv";
 
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
