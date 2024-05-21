@@ -1,9 +1,12 @@
 package grpcserv
 
 import (
+	"context"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/logger"
 	"google.golang.org/grpc"
+	"log"
+	"net"
 )
 
 type Server struct {
@@ -19,21 +22,22 @@ func NewServer(address string, app *app.App, logger *logger.Logger) *Server {
 		app:     app,
 		logger:  logger,
 	}
-	server.Init()
 	return server
 }
 
-func (s *Server) Init() {
-	//lis, err := net.Listen("tcp", s.address)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//var opts []grpc.ServerOption
-	//grpcServer := grpc.NewServer(opts...)
-	//userGrpcServer := NewUserServer(s.app)
-	//
-	//s.server = grpc.NewServer(opts...)
-	//s.server.RegisterService(NewService(s.app))
+func (s *Server) Start() error {
+	lis, err := net.Listen("tcp", s.address)
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	s.server = grpc.NewServer()
+	service := NewService(*s.app)
+	RegisterCalendarServer(s.server, service)
+	return s.server.Serve(lis)
+}
+
+func (s *Server) Stop(_ context.Context) error {
+	s.server.GracefulStop()
+	return nil
 }

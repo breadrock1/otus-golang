@@ -6,6 +6,7 @@ import (
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/cmd"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/logger"
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/server/grpcserv"
 	internalhttp "github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/memcache"
@@ -31,16 +32,52 @@ func main() {
 		storageService = memcache.New()
 	}
 
-	address := fmt.Sprintf("%s:%d", config.Server.Host, config.Server.HostPort)
+	host := config.Server.Host
 	calendar := app.New(storageService, sLog)
-	server := internalhttp.NewServer(address, calendar, sLog)
-	signals := []os.Signal{syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP}
-	ctx, cancel := signal.NotifyContext(context.Background(), signals...)
-	defer cancel()
 
-	if err = server.Start(ctx); err != nil {
-		sLog.Error("failed to start http server: " + err.Error())
-		cancel()
-		os.Exit(1)
+	ctx, cancel := context.WithCancel(context.Background())
+	go awaitSystemSignals(cancel)
+
+	httpAddress := fmt.Sprintf("%s:%d", host, config.Server.HostPort)
+	httpServer := internalhttp.NewServer(httpAddress, calendar, sLog)
+
+	go func() {
+		err := httpServer.Start(ctx)
+		if err != nil {
+			log.Println(err)
+			cancel()
+		}
+	}()
+
+	grpcAddress := fmt.Sprintf("%s:%d", host, config.Server.GrpcPort)
+	grpcServer := grpcserv.NewServer(grpcAddress, calendar, sLog)
+
+	go func() {
+		err := grpcServer.Start()
+		if err != nil {
+			log.Println(err)
+			cancel()
+		}
+	}()
+
+	<-ctx.Done()
+	cancel()
+	shutdownServices(ctx, httpServer, grpcServer)
+}
+
+func awaitSystemSignals(cancel context.CancelFunc) {
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+	<-ch
+	cancel()
+}
+
+func shutdownServices(ctx context.Context, httpServ *internalhttp.Server, grpcServ *grpcserv.Server) {
+	if err := httpServ.Stop(ctx); err != nil {
+		log.Println(err)
+	}
+
+	if err := grpcServ.Stop(ctx); err != nil {
+		log.Println(err)
 	}
 }
