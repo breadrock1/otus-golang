@@ -11,3 +11,9 @@ GrpcPort=3895
 [database]
 EnableInMemory=true
 PostgresUrl="postgresql://calendar:calendar@localhost:5432/calendar"
+
+[rabbit]
+host="127.0.0.1"
+port=5672
+user="user"
+password="pass"
