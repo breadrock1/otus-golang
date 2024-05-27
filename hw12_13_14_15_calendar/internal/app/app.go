@@ -3,16 +3,19 @@ package app
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/logger"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
-	"time"
 )
 
-var ErrEmptyTitle = errors.New("empty title")
-var ErrEventIsBusy = errors.New("event is busy")
-var ErrStartMoreThanNow = errors.New("event start time more than now")
-var ErrStartMoreThanStop = errors.New("event start time more than stop time")
+var (
+	ErrEmptyTitle        = errors.New("empty title")
+	ErrEventIsBusy       = errors.New("event is busy")
+	ErrStartMoreThanNow  = errors.New("event start time more than now")
+	ErrStartMoreThanStop = errors.New("event start time more than stop time")
+)
 
 type App struct {
 	logger  *logger.Logger

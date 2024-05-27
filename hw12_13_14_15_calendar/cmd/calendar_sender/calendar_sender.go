@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/cmd"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/logger"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/rabbit"
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 var configFile string

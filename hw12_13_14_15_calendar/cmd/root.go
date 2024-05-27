@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/config"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
+
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/cmd/config"
+	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{

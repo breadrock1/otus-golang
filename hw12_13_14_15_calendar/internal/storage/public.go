@@ -2,7 +2,8 @@ package storage
 
 import (
 	"context"
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/config"
+
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/memcache"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/sqlstorage"

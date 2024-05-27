@@ -1,9 +1,9 @@
 package internalhttp
 
 import (
-	"github.com/labstack/echo/v4"
 	"time"
 
+	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
 

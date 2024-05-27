@@ -2,11 +2,12 @@ package grpcserv
 
 import (
 	"context"
+	"time"
+
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
-	"time"
 )
 
 func CustomLogger(

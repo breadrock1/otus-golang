@@ -13,26 +13,18 @@ issues:
   exclude-rules:
     - path: _test\.go
       linters:
-        - errcheck
+        - depguard
         - dupl
+        - errcheck
         - gocyclo
         - gosec
-        - ineffassign
-        - depguard
-    - path: cmd
-      linters:
-        - errcheck
-        - dupl
-        - gocyclo
-        - gosec
-        - ineffassign
-        - depguard
 
 linters:
   disable-all: true
   enable:
     - asciicheck
     - bodyclose
+    - depguard
     - dogsled
     - dupl
     - durationcheck
@@ -45,6 +37,7 @@ linters:
     - goconst
     - gocritic
     - gocyclo
+    - godot
     - gofmt
     - gofumpt
     - goheader

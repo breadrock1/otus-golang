@@ -3,16 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/cmd"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/logger"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/server/grpcserv"
 	internalhttp "github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage"
-	"log"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {

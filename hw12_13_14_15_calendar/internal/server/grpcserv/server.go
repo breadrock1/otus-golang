@@ -2,11 +2,12 @@ package grpcserv
 
 import (
 	"context"
+	"log"
+	"net"
+
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/logger"
 	"google.golang.org/grpc"
-	"log"
-	"net"
 )
 
 type Server struct {

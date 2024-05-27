@@ -3,10 +3,10 @@ package rabbit
 import (
 	"context"
 	"fmt"
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/config"
 	"log"
 	"time"
 
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/streadway/amqp"
 )
 

@@ -3,11 +3,12 @@ package internalhttp
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"strconv"
+
 	_ "github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/docs"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 	"github.com/labstack/echo/v4"
-	"io"
-	"strconv"
 )
 
 func (s *Server) CreateEventsGroup() {
@@ -23,6 +24,7 @@ func (s *Server) CreateEventsGroup() {
 }
 
 // CreateEvent
+// @Router /calendar/create [post]
 // @Summary Create event
 // @Description Create new event by form
 // @ID create
@@ -31,8 +33,7 @@ func (s *Server) CreateEventsGroup() {
 // @Param jsonQuery body event.Event true "Event to create"
 // @Success 200 {object} ResponseForm "Created event: 1345"
 // @Failure 400 {object} BadRequestForm "Bad request message"
-// @Failure	503 {object} ServerErrorForm "Server does not available"
-// @Router /calendar/create [post]
+// @Failure	503 {object} ServerErrorForm "Server does not available".
 func (s *Server) CreateEvent(c echo.Context) error {
 	eventForm := &event.Event{}
 	form, err := s.extractForm(c.Request().Body, eventForm)
@@ -54,6 +55,7 @@ func (s *Server) CreateEvent(c echo.Context) error {
 }
 
 // UpdateEvent
+// @Router /calendar/event/{id} [put]
 // @Summary Update event
 // @Description Updated existing event by form
 // @ID update
@@ -63,8 +65,7 @@ func (s *Server) CreateEvent(c echo.Context) error {
 // @Param jsonQuery body event.Event true "Event to update"
 // @Success 200 {object} ResponseForm "Ok"
 // @Failure 400 {object} BadRequestForm "Bad request message"
-// @Failure	503 {object} ServerErrorForm "Server does not available"
-// @Router /calendar/event/{id} [put]
+// @Failure	503 {object} ServerErrorForm "Server does not available".
 func (s *Server) UpdateEvent(c echo.Context) error {
 	eventID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -90,6 +91,7 @@ func (s *Server) UpdateEvent(c echo.Context) error {
 }
 
 // DeleteEvent
+// @Router /calendar/event/{id} [delete]
 // @Summary Delete event
 // @Description Delete existing event by form
 // @ID delete
@@ -98,8 +100,7 @@ func (s *Server) UpdateEvent(c echo.Context) error {
 // @Param id path int true "Event id"
 // @Success 200 {object} ResponseForm "Ok"
 // @Failure 400 {object} BadRequestForm "Bad request message"
-// @Failure	503 {object} ServerErrorForm "Server does not available"
-// @Router /calendar/event/{id} [delete]
+// @Failure	503 {object} ServerErrorForm "Server does not available".
 func (s *Server) DeleteEvent(c echo.Context) error {
 	eventID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -117,6 +118,7 @@ func (s *Server) DeleteEvent(c echo.Context) error {
 }
 
 // ListEventsPerDay
+// @Router /calendar/list/day [post]
 // @Summary Get all events per day
 // @Description Get all events per day by datetime form
 // @ID list-per-day
@@ -125,8 +127,7 @@ func (s *Server) DeleteEvent(c echo.Context) error {
 // @Param jsonQuery body DatetimeForm true "Get events per day"
 // @Success 200 {object} ResponseForm "Ok"
 // @Failure 400 {object} BadRequestForm "Bad request message"
-// @Failure	503 {object} ServerErrorForm "Server does not available"
-// @Router /calendar/list/day [post]
+// @Failure	503 {object} ServerErrorForm "Server does not available".
 func (s *Server) ListEventsPerDay(c echo.Context) error {
 	datetimeForm := &DatetimeForm{}
 	form, err := s.extractForm(c.Request().Body, datetimeForm)
@@ -147,6 +148,7 @@ func (s *Server) ListEventsPerDay(c echo.Context) error {
 }
 
 // ListEventsPerWeek
+// @Router /calendar/list/week [post]
 // @Summary Get all events per week
 // @Description Get all events per week by datetime form
 // @ID list-per-week
@@ -155,8 +157,7 @@ func (s *Server) ListEventsPerDay(c echo.Context) error {
 // @Param jsonQuery body DatetimeForm true "Get events per week"
 // @Success 200 {object} ResponseForm "Ok"
 // @Failure 400 {object} BadRequestForm "Bad request message"
-// @Failure	503 {object} ServerErrorForm "Server does not available"
-// @Router /calendar/list/week [post]
+// @Failure	503 {object} ServerErrorForm "Server does not available".
 func (s *Server) ListEventsPerWeek(c echo.Context) error {
 	datetimeForm := &DatetimeForm{}
 	form, err := s.extractForm(c.Request().Body, datetimeForm)
@@ -177,6 +178,7 @@ func (s *Server) ListEventsPerWeek(c echo.Context) error {
 }
 
 // ListEventsPerMonth
+// @Router /calendar/list/month [post]
 // @Summary Get all events per month
 // @Description Get all events per month by datetime form
 // @ID list-per-month
@@ -185,8 +187,7 @@ func (s *Server) ListEventsPerWeek(c echo.Context) error {
 // @Param jsonQuery body DatetimeForm true "Get events per month"
 // @Success 200 {object} ResponseForm "Ok"
 // @Failure 400 {object} BadRequestForm "Bad request message"
-// @Failure	503 {object} ServerErrorForm "Server does not available"
-// @Router /calendar/list/month [post]
+// @Failure	503 {object} ServerErrorForm "Server does not available".
 func (s *Server) ListEventsPerMonth(c echo.Context) error {
 	datetimeForm := &DatetimeForm{}
 	form, err := s.extractForm(c.Request().Body, datetimeForm)

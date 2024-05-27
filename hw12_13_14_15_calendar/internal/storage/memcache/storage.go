@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 )
 
 type MemStorage struct {

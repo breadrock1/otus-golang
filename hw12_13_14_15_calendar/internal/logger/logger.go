@@ -1,9 +1,10 @@
 package logger
 
 import (
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/config"
 	"log"
 	"os"
+
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/cmd/config"
 )
 
 type Logger struct {
@@ -24,7 +25,7 @@ func New(cfg *config.LoggerConfig) (*Logger, error) {
 	}
 
 	osFlags := os.O_APPEND | os.O_CREATE | os.O_WRONLY
-	file, err := os.OpenFile(cfg.FilePath, osFlags, 0666)
+	file, err := os.OpenFile(cfg.FilePath, osFlags, 0o666)
 	if err != nil {
 		return nil, err
 	}

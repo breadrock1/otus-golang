@@ -2,13 +2,14 @@ package grpcserv
 
 import (
 	"context"
+	"log"
+
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"log"
 )
 
 type Service struct {

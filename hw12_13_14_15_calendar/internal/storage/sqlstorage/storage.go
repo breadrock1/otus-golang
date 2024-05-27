@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 	"log"
 	"time"
+
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 )
 
 type SQLStorage struct {
@@ -188,7 +189,11 @@ func (s *SQLStorage) IsTimeBusy(ctx context.Context, ev event.Event) (bool, erro
 	return count > 0, nil
 }
 
-func (s *SQLStorage) extractList(ctx context.Context, query string, args ...interface{}) (resultEvent []event.Event, errEvent error) {
+func (s *SQLStorage) extractList(
+	ctx context.Context,
+	query string,
+	args ...interface{},
+) (events []event.Event, errEvent error) {
 	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("db query: %w", err)
@@ -212,7 +217,6 @@ func (s *SQLStorage) extractList(ctx context.Context, query string, args ...inte
 			&ev.UserID,
 			&notification,
 		)
-
 		if err != nil {
 			errEvent = fmt.Errorf("db scan: %w", err)
 			return
@@ -222,7 +226,7 @@ func (s *SQLStorage) extractList(ctx context.Context, query string, args ...inte
 			ev.Notification = (*time.Duration)(&notification.Int64)
 		}
 
-		resultEvent = append(resultEvent, ev)
+		events = append(events, ev)
 	}
 
 	if err := rows.Err(); err != nil {

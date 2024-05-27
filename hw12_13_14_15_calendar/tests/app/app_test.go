@@ -2,14 +2,15 @@ package app
 
 import (
 	"context"
+	"testing"
+	"time"
+
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/app"
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/config"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/logger"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 func TestAppBase(t *testing.T) {
