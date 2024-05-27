@@ -3,7 +3,7 @@ package grpcserv
 import (
 	"context"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/app"
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage"
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -73,30 +73,30 @@ func (s Service) mustEmbedUnimplementedCalendarServer() {
 	log.Println("Unimplemented")
 }
 
-func (s Service) intoEvent(event *Event) storage.Event {
-	notification := event.Notification.AsDuration()
-	return storage.Event{
-		ID:           int(event.Id),
-		Title:        event.Title,
-		Start:        event.Start.AsTime(),
-		Stop:         event.Stop.AsTime(),
-		Description:  event.Description,
-		UserID:       int(event.UserId),
+func (s Service) intoEvent(ev *Event) event.Event {
+	notification := ev.Notification.AsDuration()
+	return event.Event{
+		ID:           int(ev.Id),
+		Title:        ev.Title,
+		Start:        ev.Start.AsTime(),
+		Stop:         ev.Stop.AsTime(),
+		Description:  ev.Description,
+		UserID:       int(ev.UserId),
 		Notification: &notification,
 	}
 }
 
-func (s Service) fromEvent(events []storage.Event) []*Event {
+func (s Service) fromEvent(events []event.Event) []*Event {
 	allEvents := make([]*Event, 0)
-	for _, event := range events {
+	for _, ev := range events {
 		grpcEvent := &Event{
-			Id:           int32(event.ID),
-			UserId:       int32(event.UserID),
-			Notification: durationpb.New(*event.Notification),
-			Start:        timestamppb.New(event.Start),
-			Stop:         timestamppb.New(event.Stop),
-			Title:        event.Title,
-			Description:  event.Description,
+			Id:           int32(ev.ID),
+			UserId:       int32(ev.UserID),
+			Notification: durationpb.New(*ev.Notification),
+			Start:        timestamppb.New(ev.Start),
+			Stop:         timestamppb.New(ev.Stop),
+			Title:        ev.Title,
+			Description:  ev.Description,
 		}
 		allEvents = append(allEvents, grpcEvent)
 	}

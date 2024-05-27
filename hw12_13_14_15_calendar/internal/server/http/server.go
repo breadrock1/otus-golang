@@ -30,7 +30,7 @@ func (s *Server) Init() {
 	s.server = echo.New()
 
 	s.server.Use(middleware.CORS())
-	s.server.Use(middleware.Logger())
+	s.server.Use(s.CustomLogger)
 
 	s.CreateEventsGroup()
 

@@ -31,7 +31,7 @@ func (s *Server) Start() error {
 		log.Fatal(err)
 	}
 
-	s.server = grpc.NewServer()
+	s.server = grpc.NewServer(grpc.UnaryInterceptor(CustomLogger))
 	service := NewService(*s.app)
 	RegisterCalendarServer(s.server, service)
 	return s.server.Serve(lis)
