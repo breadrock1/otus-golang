@@ -5,12 +5,14 @@ import (
 	"errors"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/logger"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage"
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 	"time"
 )
 
-var EmptyTitleError = errors.New("empty title")
-var EventIsBusyError = errors.New("event is busy")
-var StartMoteThanNow = errors.New("event start time more than now")
+var ErrEmptyTitle = errors.New("empty title")
+var ErrEventIsBusy = errors.New("event is busy")
+var ErrStartMoreThanNow = errors.New("event start time more than now")
+var ErrStartMoreThanStop = errors.New("event start time more than stop time")
 
 type App struct {
 	logger  *logger.Logger
@@ -24,54 +26,45 @@ func New(storage storage.Storage, logger *logger.Logger) *App {
 	}
 }
 
-func (a *App) CreateEvent(ctx context.Context, event storage.Event) (int, error) {
-	if event.Title == "" {
-		return -1, EmptyTitleError
+func (a *App) CreateEvent(ctx context.Context, ev event.Event) (int, error) {
+	if ev.Title == "" {
+		return -1, ErrEmptyTitle
 	}
 
-	if event.Start.After(event.Stop) {
-		event.Start, event.Stop = event.Stop, event.Start
+	if ev.Start.After(ev.Stop) {
+		return -1, ErrStartMoreThanStop
 	}
 
-	if !time.Now().After(event.Start) {
-		return -1, StartMoteThanNow
+	if time.Now().After(ev.Start) {
+		return -1, ErrStartMoreThanNow
 	}
 
-	isBusy, err := a.storage.IsTimeBusy(ctx, event.UserID, event.Start, event.Stop, 0)
+	isBusy, err := a.storage.IsTimeBusy(ctx, ev)
 	if err != nil {
 		return -1, err
 	}
 
 	if isBusy {
-		return -1, EventIsBusyError
+		return -1, ErrEventIsBusy
 	}
 
-	return a.storage.Create(ctx, event)
+	return a.storage.Create(ctx, ev)
 }
 
-func (a *App) UpdateEvent(ctx context.Context, id int, event storage.Event) error {
-	if event.Title == "" {
-		return EmptyTitleError
+func (a *App) UpdateEvent(ctx context.Context, id int, ev event.Event) error {
+	if ev.Title == "" {
+		return ErrEmptyTitle
 	}
 
-	if event.Start.After(event.Stop) {
-		event.Start, event.Stop = event.Stop, event.Start
+	if ev.Start.After(ev.Stop) {
+		return ErrStartMoreThanStop
 	}
 
-	if !time.Now().After(event.Start) {
-		return StartMoteThanNow
+	if time.Now().After(ev.Start) {
+		return ErrStartMoreThanNow
 	}
 
-	isBusy, err := a.storage.IsTimeBusy(ctx, event.UserID, event.Start, event.Stop, id)
-	if err != nil {
-		return err
-	}
-
-	if isBusy {
-		return EventIsBusyError
-	}
-
-	return a.storage.Update(ctx, id, event)
+	return a.storage.Update(ctx, id, ev)
 }
 
 func (a *App) Delete(ctx context.Context, id int) error {
@@ -82,18 +75,18 @@ func (a *App) DeleteAll(ctx context.Context) error {
 	return a.storage.DeleteAll(ctx)
 }
 
-func (a *App) ListAll(ctx context.Context) ([]storage.Event, error) {
+func (a *App) ListAll(ctx context.Context) ([]event.Event, error) {
 	return a.storage.ListAll(ctx)
 }
 
-func (a *App) ListDay(ctx context.Context, date time.Time) ([]storage.Event, error) {
+func (a *App) ListDay(ctx context.Context, date time.Time) ([]event.Event, error) {
 	return a.storage.ListDay(ctx, date)
 }
 
-func (a *App) ListWeek(ctx context.Context, date time.Time) ([]storage.Event, error) {
+func (a *App) ListWeek(ctx context.Context, date time.Time) ([]event.Event, error) {
 	return a.storage.ListWeek(ctx, date)
 }
 
-func (a *App) ListMonth(ctx context.Context, date time.Time) ([]storage.Event, error) {
+func (a *App) ListMonth(ctx context.Context, date time.Time) ([]event.Event, error) {
 	return a.storage.ListMonth(ctx, date)
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Event example
 type Event struct {
 	ID           int
 	Title        string         `json:"title" example:"Alarm"`

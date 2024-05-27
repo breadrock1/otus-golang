@@ -2,12 +2,15 @@ package storage
 
 import (
 	"context"
-	"time"
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/config"
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/memcache"
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/sqlstorage"
 )
 
 type Storage interface {
 	Service
-	Events
+	event.Events
 }
 
 type Service interface {
@@ -15,24 +18,12 @@ type Service interface {
 	Close(ctx context.Context) error
 }
 
-type Event struct {
-	ID           int
-	Title        string         `json:"title" example:"Alarm"`
-	Start        time.Time      `json:"start" example:"2024-05-10T10:07:35Z"`
-	Stop         time.Time      `json:"stop" example:"2024-05-11T10:07:35Z"`
-	Description  string         `json:"description" example:"Alarm to wake up"`
-	UserID       int            `json:"user_id" example:"1"`
-	Notification *time.Duration `json:"notification" example:"10"`
-}
+func New(config *config.DatabaseConfig) Storage {
+	if config.EnableInMemory {
+		storeService := memcache.New()
+		return &storeService
+	}
 
-type Events interface {
-	Create(ctx context.Context, event Event) (int, error)
-	Update(ctx context.Context, id int, change Event) error
-	Delete(ctx context.Context, id int) error
-	DeleteAll(ctx context.Context) error
-	ListAll(ctx context.Context) ([]Event, error)
-	ListDay(ctx context.Context, date time.Time) ([]Event, error)
-	ListWeek(ctx context.Context, date time.Time) ([]Event, error)
-	ListMonth(ctx context.Context, date time.Time) ([]Event, error)
-	IsTimeBusy(ctx context.Context, userID int, start, stop time.Time, excludeID int) (bool, error)
+	storeService := sqlstorage.New()
+	return &storeService
 }

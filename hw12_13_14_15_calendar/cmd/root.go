@@ -11,7 +11,7 @@ var rootCmd = &cobra.Command{
 	Use:   "./calendar --config=/path/to/config.yaml",
 	Short: "Launch calendar service",
 	Long:  `There is command line interface to launch calendar service.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		if configPath, err := cmd.Flags().GetString("config"); err == nil {
 			log.Println("Launching calendar service with config: ", configPath)
 			return
@@ -26,13 +26,13 @@ func Execute() *config.Config {
 		os.Exit(-1)
 	}
 
-	versionFlag, err := rootCmd.Flags().GetCount("version")
+	versionFlag, _ := rootCmd.Flags().GetCount("version")
 	if versionFlag > 0 {
 		PrintVersion()
 		os.Exit(0)
 	}
 
-	configPath, err := rootCmd.Flags().GetString("config")
+	configPath, _ := rootCmd.Flags().GetString("config")
 	parsedConfig, err := config.NewConfig(configPath)
 	if err != nil {
 		log.Fatalf("Failed while parsing config file: %s", err)

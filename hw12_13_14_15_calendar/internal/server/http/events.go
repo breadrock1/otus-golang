@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	_ "github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/docs"
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage"
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 	"github.com/labstack/echo/v4"
 	"io"
 	"strconv"
@@ -28,13 +28,13 @@ func (s *Server) CreateEventsGroup() {
 // @ID create
 // @Tags calendar
 // @Produce json
-// @Param jsonQuery body storage.Event true "Event to create"
+// @Param jsonQuery body event.Event true "Event to create"
 // @Success 200 {object} ResponseForm "Created event: 1345"
 // @Failure 400 {object} BadRequestForm "Bad request message"
 // @Failure	503 {object} ServerErrorForm "Server does not available"
 // @Router /calendar/create [post]
 func (s *Server) CreateEvent(c echo.Context) error {
-	eventForm := &storage.Event{}
+	eventForm := &event.Event{}
 	form, err := s.extractForm(c.Request().Body, eventForm)
 	if err != nil {
 		respErr := createStatusResponse(400, err.Error())
@@ -43,8 +43,8 @@ func (s *Server) CreateEvent(c echo.Context) error {
 
 	var eventID int
 	cxt := c.Request().Context()
-	event := form.(*storage.Event)
-	if eventID, err = s.app.CreateEvent(cxt, *event); err != nil {
+	ev := form.(*event.Event)
+	if eventID, err = s.app.CreateEvent(cxt, *ev); err != nil {
 		respErr := createStatusResponse(400, err.Error())
 		return c.JSON(400, respErr)
 	}
@@ -60,7 +60,7 @@ func (s *Server) CreateEvent(c echo.Context) error {
 // @Tags calendar
 // @Produce json
 // @Param id path int true "Event id"
-// @Param jsonQuery body storage.Event true "Event to update"
+// @Param jsonQuery body event.Event true "Event to update"
 // @Success 200 {object} ResponseForm "Ok"
 // @Failure 400 {object} BadRequestForm "Bad request message"
 // @Failure	503 {object} ServerErrorForm "Server does not available"
@@ -72,7 +72,7 @@ func (s *Server) UpdateEvent(c echo.Context) error {
 		return c.JSON(400, respErr)
 	}
 
-	eventForm := &storage.Event{}
+	eventForm := &event.Event{}
 	form, err := s.extractForm(c.Request().Body, eventForm)
 	if err != nil {
 		respErr := createStatusResponse(400, err.Error())
@@ -80,8 +80,8 @@ func (s *Server) UpdateEvent(c echo.Context) error {
 	}
 
 	cxt := c.Request().Context()
-	event := form.(*storage.Event)
-	if err = s.app.UpdateEvent(cxt, eventID, *event); err != nil {
+	ev := form.(*event.Event)
+	if err = s.app.UpdateEvent(cxt, eventID, *ev); err != nil {
 		respErr := createStatusResponse(400, err.Error())
 		return c.JSON(400, respErr)
 	}
@@ -135,7 +135,7 @@ func (s *Server) ListEventsPerDay(c echo.Context) error {
 		return c.JSON(400, respErr)
 	}
 
-	var perDay []storage.Event
+	var perDay []event.Event
 	cxt := c.Request().Context()
 	datetime := form.(*DatetimeForm)
 	if perDay, err = s.app.ListDay(cxt, *datetime.Datetime); err != nil {
@@ -165,7 +165,7 @@ func (s *Server) ListEventsPerWeek(c echo.Context) error {
 		return c.JSON(400, respErr)
 	}
 
-	var perWeek []storage.Event
+	var perWeek []event.Event
 	cxt := c.Request().Context()
 	datetime := form.(*DatetimeForm)
 	if perWeek, err = s.app.ListDay(cxt, *datetime.Datetime); err != nil {
@@ -195,7 +195,7 @@ func (s *Server) ListEventsPerMonth(c echo.Context) error {
 		return c.JSON(400, respErr)
 	}
 
-	var perMonth []storage.Event
+	var perMonth []event.Event
 	cxt := c.Request().Context()
 	datetime := form.(*DatetimeForm)
 	if perMonth, err = s.app.ListDay(cxt, *datetime.Datetime); err != nil {

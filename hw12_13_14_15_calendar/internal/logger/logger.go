@@ -33,6 +33,7 @@ func New(cfg *config.LoggerConfig) (*Logger, error) {
 		InfoLogger: log.New(file, "INFO: ", logFlags),
 		WarnLogger: log.New(file, "WARN: ", logFlags),
 		ErrLogger:  log.New(file, "ERROR: ", logFlags),
+		loggerFile: file,
 	}
 
 	return serviceLogger, nil
