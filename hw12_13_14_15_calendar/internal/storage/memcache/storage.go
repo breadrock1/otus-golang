@@ -2,58 +2,67 @@ package memcache
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage"
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 	"sort"
 	"sync"
 	"time"
 )
 
-type memStorage struct {
+type MemStorage struct {
 	mu     *sync.Mutex
 	lastID int
-	cache  map[int]*storage.Event
+	cache  map[int]*event.Event
 }
 
-func New() storage.Storage {
-	store := memStorage{
+func New() MemStorage {
+	store := MemStorage{
 		mu:     &sync.Mutex{},
 		lastID: 0,
-		cache:  make(map[int]*storage.Event),
+		cache:  make(map[int]*event.Event),
 	}
 
-	return &store
+	return store
 }
 
-func (s *memStorage) Connect(_ context.Context, _ string) error {
+func (s *MemStorage) Connect(_ context.Context, _ string) error {
 	return nil
 }
 
-func (s *memStorage) Close(_ context.Context) error {
+func (s *MemStorage) Close(_ context.Context) error {
 	return nil
 }
 
-func (s *memStorage) Create(_ context.Context, event storage.Event) (int, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	id := s.lastID + 1
-	s.cache[id] = &storage.Event{
-		ID:           id,
-		Title:        event.Title,
-		Start:        event.Start,
-		Stop:         event.Stop,
-		Description:  event.Description,
-		UserID:       event.UserID,
-		Notification: event.Notification,
+func (s *MemStorage) Create(_ context.Context, ev event.Event) (int, error) {
+	if !s.isTimeCorrect(&ev) {
+		return -1, errors.New("time not correct")
 	}
 
-	return id, nil
-}
-
-func (s *memStorage) Update(_ context.Context, id int, newEvent storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
+	if ev.ID == -1 {
+		ev.ID = len(s.cache)
+	}
+
+	if _, ok := s.cache[ev.ID]; ok && ev.ID != 0 {
+		msg := fmt.Sprintf("event %d already exists", ev.ID)
+		return ev.ID, errors.New(msg)
+	}
+
+	s.cache[ev.ID] = &ev
+
+	return ev.ID, nil
+}
+
+func (s *MemStorage) Update(_ context.Context, id int, newEvent event.Event) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if !s.isTimeCorrect(&newEvent) {
+		return errors.New("time not correct")
+	}
 
 	if _, ok := s.cache[id]; !ok {
 		return fmt.Errorf("non exist: %d", id)
@@ -64,111 +73,128 @@ func (s *memStorage) Update(_ context.Context, id int, newEvent storage.Event) e
 	return nil
 }
 
-func (s *memStorage) Delete(_ context.Context, id int) error {
+func (s *MemStorage) Delete(_ context.Context, id int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
+	if _, ok := s.cache[id]; !ok {
+		return errors.New("event with passed id does not exist")
+	}
 
 	delete(s.cache, id)
 	return nil
 }
 
-func (s *memStorage) DeleteAll(_ context.Context) error {
+func (s *MemStorage) DeleteAll(_ context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.cache = make(map[int]*storage.Event)
+	s.cache = make(map[int]*event.Event)
 	return nil
 }
 
-func (s *memStorage) ListAll(_ context.Context) ([]storage.Event, error) {
+func (s *MemStorage) ListAll(_ context.Context) ([]event.Event, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	result := make([]storage.Event, 0, len(s.cache))
-	for _, event := range s.cache {
-		result = append(result, *event)
+	events := make([]event.Event, 0)
+	for _, ev := range s.cache {
+		events = append(events, *ev)
 	}
 
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].Start.Before(result[j].Start)
-	})
-
-	return result, nil
+	return events, nil
 }
 
-func (s *memStorage) ListDay(_ context.Context, date time.Time) ([]storage.Event, error) {
+func (s *MemStorage) ListDay(_ context.Context, date time.Time) ([]event.Event, error) {
+	start := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	stop := start.Add(24 * time.Hour)
+	return s.consumeFilter(start, stop), nil
+}
+
+func (s *MemStorage) ListWeek(_ context.Context, date time.Time) ([]event.Event, error) {
+	start := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	stop := start.AddDate(0, 0, 7)
+	return s.consumeFilter(start, stop), nil
+}
+
+func (s *MemStorage) ListMonth(_ context.Context, date time.Time) ([]event.Event, error) {
+	start := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+	stop := start.AddDate(0, 1, 0)
+	return s.consumeFilter(start, stop), nil
+}
+
+func (s *MemStorage) GetEventsByNotifier(_ context.Context, start time.Time, end time.Time) ([]event.Event, error) {
+	events := make([]event.Event, 0)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	var result []storage.Event
-	year, month, day := date.Date()
-	for _, event := range s.cache {
-		eventYear, eventMonth, eventDay := event.Start.Date()
-		if eventYear == year && eventMonth == month && eventDay == day {
-			result = append(result, *event)
+	for _, ev := range s.cache {
+		notifyHours := ev.Notification.Hours()
+		notifyTime := ev.Start.Add(time.Hour * time.Duration(notifyHours))
+		if notifyHours > 0 && notifyTime.After(start) && notifyTime.Before(end) {
+			events = append(events, *ev)
 		}
 	}
 
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].Start.Before(result[j].Start)
-	})
-
-	return result, nil
+	return events, nil
 }
 
-func (s *memStorage) ListWeek(_ context.Context, date time.Time) ([]storage.Event, error) {
+func (s *MemStorage) RemoveAfter(_ context.Context, time time.Time) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	var result []storage.Event
-	year, week := date.ISOWeek()
-	for _, event := range s.cache {
-		eventYear, eventWeek := event.Start.ISOWeek()
-		if eventYear == year && eventWeek == week {
-			result = append(result, *event)
+	for k, ev := range s.cache {
+		if ev.Start.After(time) {
+			delete(s.cache, k)
 		}
 	}
 
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].Start.Before(result[j].Start)
-	})
-
-	return result, nil
+	return nil
 }
 
-func (s *memStorage) ListMonth(_ context.Context, date time.Time) ([]storage.Event, error) {
+func (s *MemStorage) IsTimeBusy(_ context.Context, ev event.Event) (bool, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	var result []storage.Event
-	year, month, _ := date.Date()
-	for _, event := range s.cache {
-		eventYear, eventMonth, _ := event.Start.Date()
-		if eventYear == year && eventMonth == month {
-			result = append(result, *event)
-		}
-	}
-
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].Start.Before(result[j].Start)
-	})
-
-	return result, nil
-}
-
-func (s *memStorage) IsTimeBusy(_ context.Context, userID int, start, stop time.Time, excludeID int) (bool, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	for _, event := range s.cache {
-		filterByUser := event.UserID == userID
-		isExcluded := event.ID != excludeID
-		isStopAfter := event.Stop.After(start)
-		isStartBefore := event.Start.Before(stop)
-		if filterByUser && isExcluded && isStopAfter && isStartBefore {
+	for _, currEvent := range s.cache {
+		isSameEvent := currEvent.ID == ev.ID
+		isSameUser := currEvent.UserID == ev.UserID
+		if isSameEvent && isSameUser {
 			return true, nil
 		}
 	}
 
 	return false, nil
+}
+
+func (s *MemStorage) consumeFilter(start, stop time.Time) []event.Event {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	result := make([]event.Event, 0)
+	for _, ev := range s.cache {
+		isEqualStart := ev.Start.Equal(start)
+		isRangeTrue := ev.Start.After(start) && ev.Start.Before(stop)
+		if isEqualStart || isRangeTrue {
+			result = append(result, *ev)
+		}
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Start.Before(result[j].Start)
+	})
+
+	return result
+}
+
+func (s *MemStorage) isTimeCorrect(ev *event.Event) bool {
+	if ev.Start.After(ev.Stop) {
+		return false
+	}
+
+	if ev.Start.Before(time.Now()) {
+		return false
+	}
+
+	return true
 }
