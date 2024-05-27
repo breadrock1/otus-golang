@@ -9,8 +9,6 @@ import (
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/server/grpcserv"
 	internalhttp "github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage"
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/memcache"
-	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/sqlstorage"
 	"log"
 	"os"
 	"os/signal"
@@ -25,12 +23,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	var storageService storage.Storage
-	if !config.Database.EnableInMemory {
-		storageService = sqlstorage.New()
-	} else {
-		storageService = memcache.New()
-	}
+	storageService := storage.New(&config.Database)
 
 	host := config.Server.Host
 	calendar := app.New(storageService, sLog)
