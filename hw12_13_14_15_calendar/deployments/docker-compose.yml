@@ -12,5 +12,17 @@ services:
     networks:
       - calendar-net
 
+  calendar:
+    image: calendar:latest
+    build:
+      context:
+        hw12_13_14_15_calendar
+      dockerfile:
+        build/Dockerfile
+    ports:
+      - "2895:2895"
+    networks:
+      - calendar-net
+
 networks:
   calendar-net:
