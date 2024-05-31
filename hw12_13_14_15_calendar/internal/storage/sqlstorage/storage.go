@@ -157,7 +157,9 @@ func (s *SQLStorage) GetEventsByNotifier(ctx context.Context, start time.Time, e
 	query := `
 		SELECT event_id, title, start, stop, description, user_id, notification
 		FROM event
-		WHERE extract(day FROM notification)
+		WHERE extract(day FROM notification) > 0
+		  AND (start - (interval '1' day * notification))>=$1
+		  AND (start - (interval '1' day * notification))<=$2
 	`
 
 	return s.extractList(ctx, query, start, end)
