@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 func (s *Server) CustomLogger(next echo.HandlerFunc) echo.HandlerFunc {
@@ -14,7 +14,7 @@ func (s *Server) CustomLogger(next echo.HandlerFunc) echo.HandlerFunc {
 
 		ip := c.RealIP()
 		userAgent := c.Request().Header.Get("user-agent")
-		log.WithField("IP", ip).
+		logrus.WithField("IP", ip).
 			WithField("Method", c.Request().Method).
 			WithField("URL", c.Request().URL).
 			WithField("HTTP version", c.Request().Proto).

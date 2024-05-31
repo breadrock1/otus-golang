@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
@@ -20,7 +20,7 @@ func CustomLogger(
 
 	resp, err := handler(ctx, req)
 	if err != nil {
-		log.Printf("method %q failed: %s", info.FullMethod, err)
+		logrus.Printf("method %q failed: %s", info.FullMethod, err)
 	}
 
 	ip := ""
@@ -33,7 +33,7 @@ func CustomLogger(
 		userAgent = md.Get("user-agent")
 	}
 
-	log.WithField("IP", ip).
+	logrus.WithField("IP", ip).
 		WithField("Method", info.FullMethod).
 		WithField("User-Agent", userAgent).
 		WithField("Latency", time.Since(start)).

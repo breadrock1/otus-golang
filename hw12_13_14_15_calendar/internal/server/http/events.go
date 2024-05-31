@@ -6,7 +6,6 @@ import (
 	"io"
 	"strconv"
 
-	_ "github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/docs"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
 	"github.com/labstack/echo/v4"
 )

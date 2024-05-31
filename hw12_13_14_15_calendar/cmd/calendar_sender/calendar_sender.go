@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,7 +12,6 @@ import (
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/cmd"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/logger"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/rabbit"
-	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 )
 
@@ -19,9 +19,7 @@ var configFile string
 
 func init() {
 	flag.StringVar(&configFile, "config", "./configs/config.toml", "Path to configuration file")
-	log.SetFormatter(&log.TextFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.WarnLevel)
 }
 
 func main() {
@@ -45,7 +43,7 @@ func main() {
 		m := rabbit.Message{}
 		err := json.Unmarshal(msg.Body, &m)
 		if err != nil {
-			log.Errorf("failed to parse bytes: %s", err)
+			log.Printf("failed to parse bytes: %s", err)
 			cancel()
 			return
 		}

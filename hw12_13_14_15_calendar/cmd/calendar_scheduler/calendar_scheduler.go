@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,7 +15,6 @@ import (
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/rabbit"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/storage/event"
-	log "github.com/sirupsen/logrus"
 )
 
 var configFile string
@@ -35,9 +35,7 @@ func newMessage(ev event.Event) rabbit.Message {
 
 func init() {
 	flag.StringVar(&configFile, "config", "./configs/config.toml", "Path to configuration file")
-	log.SetFormatter(&log.TextFormatter{})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.WarnLevel)
 }
 
 func main() {
@@ -77,15 +75,15 @@ func main() {
 		case <-ctx.Done():
 			return
 		default:
-			log.Debugf("get events: %s - %s", startTime, endTime)
+			log.Printf("get events: %s - %s", startTime, endTime)
 			events, err := storageService.GetEventsByNotifier(ctx, startTime, endTime)
 			if err != nil {
-				log.Errorf("failed to get events: %s", err)
+				log.Printf("failed to get events: %s", err)
 				continue
 			}
 
 			for _, ev := range events {
-				log.Debugf("send event: %v", ev)
+				log.Printf("send event: %v", ev)
 				m := newMessage(ev)
 				data, _ := json.Marshal(m)
 				_ = rabbitService.Publish(data)
@@ -95,11 +93,11 @@ func main() {
 			case <-ctx.Done():
 				return
 			case <-checkTicker.C:
-				log.Debug("ticker")
+				log.Println("ticker")
 				startTime = endTime
 				endTime = time.Now()
 			case <-removeTicker.C:
-				storageService.RemoveAfter(ctx, time.Now().Add(-1*(time.Hour*24*365)))
+				_ = storageService.RemoveAfter(ctx, time.Now().Add(-1*(time.Hour*24*365)))
 			}
 		}
 	}
