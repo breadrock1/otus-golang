@@ -13,7 +13,7 @@ EnableInMemory=true
 PostgresUrl="postgresql://calendar:calendar@localhost:5432/calendar"
 
 [rabbit]
-host="127.0.0.1"
+host="0.0.0.0"
 port=5672
 user="user"
 password="pass"

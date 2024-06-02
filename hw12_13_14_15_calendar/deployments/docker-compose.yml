@@ -12,11 +12,47 @@ services:
     networks:
       - calendar-net
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - calendar-net
+
   calendar:
     image: calendar:latest
     build:
       context:
         hw12_13_14_15_calendar
+      dockerfile:
+        build/Dockerfile
+    ports:
+      - "2895:2895"
+    networks:
+      - calendar-net
+  
+  scheduler:
+    image: calendar:latest
+    build:
+      context:
+        hw12_13_14_15_calendar
+      args:
+        - calendar-scheduler
+      dockerfile:
+        build/Dockerfile
+    ports:
+      - "5672:5672"
+    networks:
+      - calendar-net
+
+  sender:
+    image: calendar:latest
+    build:
+      context:
+        hw12_13_14_15_calendar
+      args:
+        - calendar-sender
       dockerfile:
         build/Dockerfile
     ports:
