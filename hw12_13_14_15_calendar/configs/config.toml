@@ -1,5 +1,19 @@
 [logger]
-level = "INFO"
+Level = "INFO"
+FilePath = "./logs/app.log"
+EnableFileLog = false
 
-# TODO
-# ...
+[server]
+Host="0.0.0.0"
+HostPort=2895
+GrpcPort=3895
+
+[database]
+EnableInMemory=true
+PostgresUrl="postgresql://calendar:calendar@localhost:5432/calendar"
+
+[rabbit]
+host="0.0.0.0"
+port=5672
+user="user"
+password="pass"

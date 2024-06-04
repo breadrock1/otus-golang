@@ -2,30 +2,46 @@ package internalhttp
 
 import (
 	"context"
+
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/app"
+	"github.com/breadrock1/otus-golang/hw12_13_14_15_calendar/internal/logger"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
-type Server struct { // TODO
+type Server struct {
+	address string
+	app     *app.App
+	logger  *logger.Logger
+	server  *echo.Echo
 }
 
-type Logger interface { // TODO
+func NewServer(address string, app *app.App, logger *logger.Logger) *Server {
+	server := &Server{
+		address: address,
+		app:     app,
+		logger:  logger,
+	}
+	server.Init()
+	return server
 }
 
-type Application interface { // TODO
+func (s *Server) Init() {
+	s.server = echo.New()
+
+	s.server.Use(middleware.CORS())
+	s.server.Use(s.CustomLogger)
+
+	s.CreateEventsGroup()
+
+	s.server.GET("/swagger/*", echoSwagger.WrapHandler)
 }
 
-func NewServer(logger Logger, app Application) *Server {
-	return &Server{}
-}
-
-func (s *Server) Start(ctx context.Context) error {
-	// TODO
-	<-ctx.Done()
-	return nil
+func (s *Server) Start(_ context.Context) error {
+	return s.server.Start(s.address)
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	// TODO
-	return nil
+	return s.server.Shutdown(ctx)
 }
-
-// TODO
